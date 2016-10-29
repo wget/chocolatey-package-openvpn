@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Do not remove this test for UTF-8: if ??? doesn?t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
@@ -7,38 +7,40 @@
     <title>OpenVPN Community</title>
     <version>{{PackageVersion}}</version>
     <authors>OpenVPN Technologies, Inc</authors>
-    <owners>Okhoshi</owners>
+    <owners>wget, Okhoshi</owners>
     <summary>OpenVPN Community Software</summary>
     <description>OpenVPN is a full-featured open source SSL VPN solution that accommodates a wide range of configurations, including remote access, site-to-site VPNs, Wi-Fi security, and enterprise-scale remote access solutions with load balancing, failover, and fine-grained access-controls. Starting with the fundamental premise that complexity is the enemy of security, OpenVPN offers a cost-effective, lightweight alternative to other VPN technologies that is well-targeted for the SME and enterprise markets.
-	
+
 Will be installed with the following options:
-	`/SELECT_SHORTCUTS=1`              - create the start menu shortcuts
-	`/SELECT_OPENVPN=1`                - OpenVPN itself
-	`/SELECT_SERVICE=1`                - Install the OpenVPN service
-	`/SELECT_TAP=1`                    - install the TAP device driver
-	`/SELECT_OPENVPNGUI=1`             - install the default OpenVPN GUI
-	`/SELECT_ASSOCIATIONS=1`           - associate with .ovpn files
-	`/SELECT_OPENSSL_UTILITIES=0`      - do not install the utilities for generating public-private key pairs
-	`/SELECT_EASYRSA=1`                - install the RSA X509 certificate management scripts
-	`/SELECT_PATH=1`                   - add openvpn.exe in PATH
-	`/SELECT_OPENSSLDLLS=1`            - dependencies - OpenSSL DLL's
-	`/SELECT_LZODLLS=1`                - dependencies - LZO compressor DLL's
-	`/SELECT_PKCS11DLLS=1`             - dependencies - PCKS#11 DLL's
-	</description>
-    <projectUrl>https://openvpn.net/index.php/open-source.html</projectUrl>
-    <tags>openvpn community admin</tags>
+    `/SELECT_SHORTCUTS=1`              - create the start menu shortcuts
+    `/SELECT_OPENVPN=1`                - OpenVPN itself
+    `/SELECT_SERVICE=1`                - Install the OpenVPN service
+    `/SELECT_TAP=1`                    - install the TAP device driver
+    `/SELECT_OPENVPNGUI=1`             - install the default OpenVPN GUI
+    `/SELECT_ASSOCIATIONS=1`           - associate with .ovpn files
+    `/SELECT_OPENSSL_UTILITIES=0`      - do not install the utilities for generating public-private key pairs
+    `/SELECT_EASYRSA=1`                - install the RSA X509 certificate management scripts
+    `/SELECT_PATH=1`                   - add openvpn.exe in PATH
+    `/SELECT_OPENSSLDLLS=1`            - dependencies - OpenSSL DLL's
+    `/SELECT_LZODLLS=1`                - dependencies - LZO compressor DLL's
+    `/SELECT_PKCS11DLLS=1`             - dependencies - PCKS#11 DLL's
+    </description>
+    <projectUrl>https://openvpn.net/index.php/open-source/</projectUrl>
+    <tags>openvpn community tunnel ssl admin</tags>
     <copyright>OpenVPN Technologies, Inc</copyright>
     <licenseUrl>https://openvpn.net/index.php/license.html</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <iconUrl>http://cdn.rawgit.com/okhoshi/chocolatey-packages/master/openvpn/icon.png</iconUrl>
+    <!-- Important note about https://cdn.rawgit.com: Files are cached permanently after the first request. Use commit URLs when updating the icon. -->
+    <iconUrl>https://cdn.rawgit.com/wget/chocolatey_openvpn/master/icon.png</iconUrl>
     <!--<dependencies>
-      <dependency id="openvpn" version="" />
+      <dependency id="" version="" />
     </dependencies>-->
-	<packageSourceUrl>https://github.com/Okhoshi/chocolatey-packages/tree/master/openvpn</packageSourceUrl>
-	<projectSourceUrl>https://github.com/OpenVPN/openvpn</projectSourceUrl>
     <releaseNotes>https://openvpn.net/index.php/open-source/documentation/release-notes.html</releaseNotes>
-	<bugTrackerUrl>https://community.openvpn.net/openvpn/report/1</bugTrackerUrl>
-	<docsUrl>https://community.openvpn.net/openvpn/wiki</docsUrl>
+    <!-- Specific to Chocolatey -->
+    <projectSourceUrl>https://github.com/OpenVPN/openvpn</projectSourceUrl>
+    <docsUrl>https://community.openvpn.net/openvpn/wiki</docsUrl>
+    <bugTrackerUrl>https://community.openvpn.net/openvpn/report/1</bugTrackerUrl>
+    <packageSourceUrl>https://github.com/wget/chocolatey_openvpn</packageSourceUrl>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
