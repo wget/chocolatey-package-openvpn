@@ -11,19 +11,22 @@
     <summary>OpenVPN Community Software</summary>
     <description>OpenVPN is a full-featured open source SSL VPN solution that accommodates a wide range of configurations, including remote access, site-to-site VPNs, Wi-Fi security, and enterprise-scale remote access solutions with load balancing, failover, and fine-grained access-controls. Starting with the fundamental premise that complexity is the enemy of security, OpenVPN offers a cost-effective, lightweight alternative to other VPN technologies that is well-targeted for the SME and enterprise markets.
 
-Will be installed with the following options:
-    `/SELECT_SHORTCUTS=1`              - create the start menu shortcuts
-    `/SELECT_OPENVPN=1`                - OpenVPN itself
-    `/SELECT_SERVICE=1`                - Install the OpenVPN service
-    `/SELECT_TAP=1`                    - install the TAP device driver
-    `/SELECT_OPENVPNGUI=1`             - install the default OpenVPN GUI
-    `/SELECT_ASSOCIATIONS=1`           - associate with .ovpn files
-    `/SELECT_OPENSSL_UTILITIES=0`      - do not install the utilities for generating public-private key pairs
-    `/SELECT_EASYRSA=1`                - install the RSA X509 certificate management scripts
-    `/SELECT_PATH=1`                   - add openvpn.exe in PATH
-    `/SELECT_OPENSSLDLLS=1`            - dependencies - OpenSSL DLL's
-    `/SELECT_LZODLLS=1`                - dependencies - LZO compressor DLL's
-    `/SELECT_PKCS11DLLS=1`             - dependencies - PCKS#11 DLL's
+This package will be installed with the following options:
+* `/SELECT_OPENVPN=1`             : Install OpenVPN user-space components, including openvpn.exe
+* `/SELECT_SERVICE=1`             : Install OpenVPN GUI by Mathias Sundman
+* `/SELECT_INTERACTIVE_SERVICE=1` : Install/upgrade the TAP virtual device driver
+* `/SELECT_TAP=1`                 : Install OpenVPN RSA scripts for X509 certificate management
+* `/SELECT_OPENVPNGUI=1`          : Install OpenSSL DLLs locally (may be omitted if DLLs are already installed globally)
+* `/SELECT_ASSOCIATIONS=1`        : Install LZO DLLs locally (may be omitted if DLLs are already installed globally)
+* `/SELECT_OPENSSL_UTILITIES=0`   : Install PKCS#11 helper DLLs locally (may be omitted if DLLs are already installed globally)
+* `/SELECT_EASYRSA=1`             : Install the OpenVPN service wrappers
+* `/SELECT_PATH=1`                : Install the OpenVPN Interactive Service (allows running OpenVPN-GUI without admin privileges)
+* `/SELECT_SHORTCUTS=1`           : Install the OpenSSL Utilities (used for generating public/private key pairs)
+* `/SELECT_OPENSSLDLLS=1`         : Add OpenVPN executable directory to the current user's PATH
+* `/SELECT_LZODLLS=1`             : Add OpenVPN shortcuts to the current user's Start Menu
+* `/SELECT_PKCS11DLLS=1`          : Register OpenVPN config file association (*.ovpn)
+
+The only difference with the default package configuration is the EASYRSA option enabled while the default install disables it.
     </description>
     <projectUrl>https://openvpn.net/index.php/open-source/</projectUrl>
     <tags>openvpn community tunnel ssl admin</tags>
