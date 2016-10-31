@@ -1,10 +1,16 @@
 ﻿$packageName = 'openvpn'
-$tools = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-$installerType = 'EXE'
-$url = '{{DownloadUrl}}'
-$url64 = '{{DownloadUrlx64}}'
+$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+$fileType = 'exe'
+$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.12-I602-i686.exe'
+$url64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.12-I602-x86_64.exe'
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
 
 Start-ChocolateyProcessAsAdmin "certutil -addstore 'TrustedPublisher' '$tools\openvpn.cer'"
-Install-ChocolateyPackage "$packageName" "$installerType" "$silentArgs" "$url" "$url64"  -validExitCodes $validExitCodes
+Install-ChocolateyPackage `
+    -PackageName "$packageName" `
+    -FileType "$fileType" `
+    -SilentArgs "$silentArgs" `
+    -Url "$url" `
+    -Url64bit "$url64" `
+    -ValidExitCodes "$validExitCodes" `
