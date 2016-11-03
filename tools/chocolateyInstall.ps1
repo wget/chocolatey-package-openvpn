@@ -37,8 +37,10 @@ $checksum64="988870a8e8277282b5fb064379594a5fd618456676ad06d1be74311754cb270c62e
 # in the Drivers Store (C:\Windows\Inf). To simulate a first install we need to
 # remove the cached drivers as well.
 # src.: https://goo.gl/Zbcs6T
+Write-Host "Adding OpenVPN driver signing certificate to have a silent install..."
 Start-ChocolateyProcessAsAdmin "certutil -addstore 'TrustedPublisher' '$toolsDir\openvpn.cer'"
 
+Write-Host "Installing OpenVPN... The service will be set (reset) to 'Manual' and will not be started. Manual intervention required."
 Install-ChocolateyPackage `
     -PackageName "$packageName" `
     -FileType "$fileType" `

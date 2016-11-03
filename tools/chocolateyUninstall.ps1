@@ -10,6 +10,7 @@ $validExitCodes = @(0)
 # manually.
 
 # Let's remove the certificate we inserted
+Write-Host "Removing OpenVPN driver signing certificate added by this installer..."
 Start-ChocolateyProcessAsAdmin "certutil -delstore 'TrustedPublisher' 'OpenVPN Technologies, Inc.'"
 
 [array]$key = Get-UninstallRegistryKey -SoftwareName "OpenVPN*"
@@ -18,6 +19,7 @@ if (!$file) {
     throw "OpenVPN uninstaller not found"
 }
 
+Write-Host "Removing OpenVPN... The OpenVPN service will be automatically stopped and removed."
 Uninstall-ChocolateyPackage `
     -PackageName "$packageName" `
     -FileType "$fileType" `
