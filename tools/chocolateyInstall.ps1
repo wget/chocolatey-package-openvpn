@@ -1,4 +1,4 @@
-﻿$packageName = 'openvpn'
+$packageName = 'openvpn'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
 $url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.12-I602-i686.exe'
@@ -50,3 +50,7 @@ Install-ChocolateyPackage `
     -ChecksumType 'sha512' `
     -Checksum64 "$checksum64" `
     -ChecksumType64 'sha512'
+
+# The installer changes the PATH, apply these changes in the current PowerShell
+# session.
+Update-SessionEnvironment

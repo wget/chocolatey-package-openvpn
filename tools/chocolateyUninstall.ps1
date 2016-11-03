@@ -30,3 +30,7 @@ Uninstall-ChocolateyPackage `
     -SilentArgs "$silentArgs" `
     -ValidExitCodes "$validExitCodes" `
     -File "$file"
+
+# The uninstaller changes the PATH, apply these changes in the current PowerShell
+# session.
+Update-SessionEnvironment
