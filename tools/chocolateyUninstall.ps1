@@ -21,6 +21,9 @@ $openvpnKey = ($uninstallPath.replace('HKEY_LOCAL_MACHINE\','HKLM:\'))
 
 $file = (Get-ItemProperty -Path ($openvpnKey)).UninstallString 
 
+# Let's remove the certificate we inserted
+Start-ChocolateyProcessAsAdmin "certutil -delstore 'TrustedPublisher' 'OpenVPN Technologies, Inc.'"
+
 Uninstall-ChocolateyPackage `
     -PackageName "$packageName" `
     -FileType "$fileType" `
