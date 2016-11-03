@@ -14,6 +14,9 @@ Start-ChocolateyProcessAsAdmin "certutil -delstore 'TrustedPublisher' 'OpenVPN T
 
 [array]$key = Get-UninstallRegistryKey -SoftwareName "OpenVPN*"
 $file = $key.UninstallString
+if (!$file) {
+    throw "OpenVPN uninstaller not found"
+}
 
 Uninstall-ChocolateyPackage `
     -PackageName "$packageName" `
