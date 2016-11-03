@@ -9,20 +9,11 @@ $validExitCodes = @(0)
 # PowerShell command does i.e. looking for the right path in the registry
 # manually.
 
-$regUninstallDir = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\'
-# No value in the 32 bits SysWoW64 subsystem on 64 bits. No string in that
-# registry node.
-#$regUninstallDirWow64 = 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\'
-
-$uninstallPaths = $(Get-ChildItem $regUninstallDir).Name
-$uninstallPath = $uninstallPaths -match "OpenVPN" | Select -First 1
-
-$openvpnKey = ($uninstallPath.replace('HKEY_LOCAL_MACHINE\','HKLM:\'))
-
-$file = (Get-ItemProperty -Path ($openvpnKey)).UninstallString 
-
 # Let's remove the certificate we inserted
 Start-ChocolateyProcessAsAdmin "certutil -delstore 'TrustedPublisher' 'OpenVPN Technologies, Inc.'"
+
+[array]$key = Get-UninstallRegistryKey -SoftwareName "OpenVPN*"
+$file = $key.UninstallString
 
 Uninstall-ChocolateyPackage `
     -PackageName "$packageName" `
