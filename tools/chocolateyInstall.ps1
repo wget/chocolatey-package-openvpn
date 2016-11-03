@@ -1,16 +1,16 @@
 $packageName = 'openvpn'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
-$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.12-I602-i686.exe'
-$url64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.12-I602-x86_64.exe'
+$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.13-I601-i686.exe'
+$url64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.13-I601-x86_64.exe'
 # For a list of all silent arguments used
 # https://github.com/OpenVPN/openvpn-build/blob/master/windows-nsis/openvpn.nsi#L431
 # For their description
 # https://github.com/OpenVPN/openvpn-build/blob/master/windows-nsis/openvpn.nsi#L102
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
-$checksum = "0d6503300d2b9c9a1cb3b4e0af24528227c6b1d0e72c7b99ef070177fcfa1b1711a2a718df615e5be89d20376fe955481232c39848c5434fd63cd591f9d9711c"
-$checksum64="988870a8e8277282b5fb064379594a5fd618456676ad06d1be74311754cb270c62e411aba78db6b7be08a9d31ea4e66b313373a9a461894d57f99efe870f94ca"
+$checksum = '182c7d906a9fc081080dc3b4459e3ec867681e6cb645a75d2ebe04d1d06ed14605622c4f34ef4d352bbdf68d81b06e2de634bed75cdb7d939e7f2cdd7973d986'
+$checksum64='9ad6cb9afc7932dc883835cf60b5efd94ee3f0914d1fb948982056abd04df9aeb8eca3554bd13acb356602ee85e202276397a3d0fab78e7f4d854406703e007e'
 
 # The setup to install a driver for the virtual network device TAP asks us if
 # we want to trust the certificate from OpenVPN Technologies, Inc. In order to
