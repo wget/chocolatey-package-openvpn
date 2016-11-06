@@ -35,8 +35,8 @@ Uninstall-ChocolateyPackage `
 # A fix for this issue is already present in choco 0.10.4
 # https://github.com/chocolatey/choco/issues/1035
 if ($Env:CHOCOLATEY_VERSION -lt "0.10.4") {
-    # Let's sleep. 2 secs is not enough. 5 is too long.
-    Start-Sleep -s 3
+    # Let's sleep. Still failing with only 3 secs. 5 seems to work.
+    Start-Sleep -s 5
 }
 
 # The uninstaller changes the PATH, apply these changes in the current PowerShell
