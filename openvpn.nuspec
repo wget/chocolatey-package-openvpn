@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek
+     uppercase omega letter enclosed in quotation marks, you should use an
+     editor that supports UTF-8, not this one. -->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
@@ -33,12 +35,16 @@
         <copyright>OpenVPN Technologies, Inc</copyright>
         <licenseUrl>https://openvpn.net/index.php/license.html</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <!-- Important note about https://cdn.rawgit.com: Files are cached permanently after the first request. Use commit URLs when updating the icon. -->
+        <!-- Important note about https://cdn.rawgit.com: Files are cached
+             permanently after the first request. Use commit URLs when updating
+             the icon. -->
         <iconUrl>https://cdn.rawgit.com/wget/chocolatey_openvpn/master/icon.png</iconUrl>
         <dependencies>
-            <!-- the id is the lowest version we require -->
+            <!-- The id is the lowest version required tomake the package work.
+                 If we do not specify one, the chocolatey web validator will
+                 report a warning to be fixed in order to respect guidelines. -->
             <dependency id="chocolatey" version="0.9.10" />
-            <dependency id="gpg4win-vanilla" version="" />
+            <dependency id="gpg4win-vanilla" version="2.3.3" />
         </dependencies>
         <releaseNotes>https://openvpn.net/index.php/open-source/documentation/release-notes.html</releaseNotes>
         <!-- Specific to Chocolatey -->
