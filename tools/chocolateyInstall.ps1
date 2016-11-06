@@ -17,6 +17,7 @@ $urlSig64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3
 $checksumSig = '8857ea92983a69cd31e2df6342e01231b3e934129056d33564e3cef0ddd3c2dc35bd0ecb52dfe4649a2df2421ad68b1d437eb7a21ad1a800993ae598b2f1372a'
 $checksumSig64 = 'dc4ec34b30d8924dfd51975f72f12ee36d7b2bdb3c80a8b8916045d63823ac6ad5833b1f543096296b2d07c4c659ff28811a2328936d11aa1b072856975465bf'
 
+# Start-Process, Get-Service and Set-Service seem to be only available in PowerShell 3.0
 if ($PSVersionTable.PSVersion.Major -lt 3) {
     throw "You need at least PowerShell 3.0 as this script relies on Cmdlets introduced with that version."
 }
