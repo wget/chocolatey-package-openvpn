@@ -174,13 +174,48 @@ if (!($ReturnFromEXE.ExitCode -eq 0)) {
 Write-Host "Adding OpenVPN certificate to have a silent install of the OpenVPN TAP driver..."
 Start-ChocolateyProcessAsAdmin "certutil -addstore 'TrustedPublisher' '$toolsDir\openvpn.cer'"
 
-Write-Host "Installing OpenVPN... The service will be set (reset) to 'Manual' and will not be started. Manual intervention required."
+$service = Get-Service | Where-Object {$_.Name -like "*OpenVPN*"}
+$serviceNeedsRestart = $False
+$serviceStartMode = [System.ServiceProcess.ServiceStartMode]::Manual
+if ($service) {
+    if ($service.Status -eq "Running") {
+        $serviceNeedsRestart = $True
+    }
+
+    $serviceStartMode = $service.StartType
+}
+
+Write-Host "Installing OpenVPN..."
 Install-ChocolateyInstallPackage `
     -PackageName $packageName `
     -FileType $fileType `
     -SilentArgs $silentArgs `
     -File $packageFileName `
     -ValidExitCodes $validExitCodes
+
+$service = Get-Service | Where-Object {$_.Name -like "*OpenVPN*"}
+if (!$service) {
+    throw "The OpenVN should have been installed, but the latter was not found."
+}
+if ($serviceNeedsRestart) {
+    try {
+        Write-Host "OpenVPN service was previously started. Trying to restarting it..."
+        Restart-Service $service.Name
+        Write-Host "OpenVPN service restarted with successful."
+    } catch {
+        # Do not use Write-Error, otherwise chocolatey will think the instalation has failed.
+        Write-Host "OpenVPN service failed to be restarted. Manual intervention required."
+    }
+}
+if ($serviceStartMode.ToString() -ne 'Manual') {
+    try {
+        Write-Host "Trying to reset the OpenVPN service to ""$serviceStartMode.ToString()""..."
+        Set-Service $service.Name -startuptype $serviceStartMode
+        Write-Host "OpenVPN service set to ""$serviceStartMode"" with successful."
+    } catch {
+        Write-Host "OpenVPN service failed to be reset to ""$serviceStartMode"". Manual intervention required."
+    }
+}
 
 # The installer changes the PATH, apply these changes in the current PowerShell
 # session (limited to this script).
