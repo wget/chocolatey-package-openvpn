@@ -40,5 +40,5 @@ if ($Env:CHOCOLATEY_VERSION -lt "0.10.4") {
 }
 
 # The uninstaller changes the PATH, apply these changes in the current PowerShell
-# session.
+# session (limited to this script).
 Update-SessionEnvironment

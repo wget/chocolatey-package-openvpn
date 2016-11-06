@@ -183,5 +183,5 @@ Install-ChocolateyInstallPackage `
     -ValidExitCodes $validExitCodes
 
 # The installer changes the PATH, apply these changes in the current PowerShell
-# session.
+# session (limited to this script).
 Update-SessionEnvironment
