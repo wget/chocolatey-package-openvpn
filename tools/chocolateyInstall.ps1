@@ -171,7 +171,7 @@ if (!($ReturnFromEXE.ExitCode -eq 0)) {
 # in the Drivers Store (C:\Windows\Inf). To simulate a first install we need to
 # remove the cached drivers as well.
 # src.: https://goo.gl/Zbcs6T
-Write-Host "Adding OpenVPN driver signing certificate to have a silent install..."
+Write-Host "Adding OpenVPN certificate to have a silent install of the OpenVPN TAP driver..."
 Start-ChocolateyProcessAsAdmin "certutil -addstore 'TrustedPublisher' '$toolsDir\openvpn.cer'"
 
 Write-Host "Installing OpenVPN... The service will be set (reset) to 'Manual' and will not be started. Manual intervention required."
