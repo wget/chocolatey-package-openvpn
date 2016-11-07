@@ -14,18 +14,27 @@ Write-Host "Removing OpenVPN driver signing certificate added by this installer.
 Start-ChocolateyProcessAsAdmin "certutil -delstore 'TrustedPublisher' 'OpenVPN Technologies, Inc.'"
 
 [array]$key = Get-UninstallRegistryKey -SoftwareName "OpenVPN*"
-$file = $key.UninstallString
-if (!$file) {
-    throw "OpenVPN uninstaller not found."
-}
 
-Write-Host "Removing OpenVPN... The OpenVPN service will be automatically stopped and removed."
-Uninstall-ChocolateyPackage `
-    -PackageName "$packageName" `
-    -FileType "$fileType" `
-    -SilentArgs "$silentArgs" `
-    -ValidExitCodes "$validExitCodes" `
-    -File "$file"
+if ($key.Count -eq 1) {
+    $key | % {
+        $file = $key.UninstallString
+
+        Write-Host "Removing OpenVPN... The OpenVPN service will be automatically stopped and removed."
+        Uninstall-ChocolateyPackage `
+            -PackageName "$packageName" `
+            -FileType "$fileType" `
+            -SilentArgs "$silentArgs" `
+            -ValidExitCodes "$validExitCodes" `
+            -File "$file"
+    }
+} elseif ($key.Count -eq 0) {
+    Write-Warning "$packageName has already been uninstalled by other means."
+} elseif ($key.Count -gt 1) {
+    Write-Warning "$key.Count matches found!"
+    Write-Warning "To prevent accidental data loss, no programs will be uninstalled."
+    Write-Warning "Please alert package maintainer the following keys were matched:"
+    $key | % {Write-Warning "- $_.DisplayName"}
+}
 
 # After the uninstall has performed, choco checks if there are uninstall
 # registry keys left and decides to launch or not its auto uninstaller feature.
