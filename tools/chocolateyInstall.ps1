@@ -17,11 +17,6 @@ $urlSig64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3
 $checksumSig = '8857ea92983a69cd31e2df6342e01231b3e934129056d33564e3cef0ddd3c2dc35bd0ecb52dfe4649a2df2421ad68b1d437eb7a21ad1a800993ae598b2f1372a'
 $checksumSig64 = 'dc4ec34b30d8924dfd51975f72f12ee36d7b2bdb3c80a8b8916045d63823ac6ad5833b1f543096296b2d07c4c659ff28811a2328936d11aa1b072856975465bf'
 
-# Start-Process, Get-Service and Set-Service seem to be only available in PowerShell 3.0
-if ($PSVersionTable.PSVersion.Major -lt 3) {
-    throw "You need at least PowerShell 3.0 as this script relies on Cmdlets introduced with that version."
-}
-
 # This function is based on part of the code of the command
 # Install-ChocolateyPackage
 # src.: https://goo.gl/jUpwOQ
@@ -175,15 +170,44 @@ if (!($ReturnFromEXE.ExitCode -eq 0)) {
 Write-Host "Adding OpenVPN certificate to have a silent install of the OpenVPN TAP driver..."
 Start-ChocolateyProcessAsAdmin "certutil -addstore 'TrustedPublisher' '$toolsDir\openvpn.cer'"
 
-$service = Get-Service | Where-Object {$_.Name -like "*OpenVPN*"}
+Write-Host "Getting the state of the current OpenVPN service (if any)..."
+# Get-Service returns a System.ServiceProcess.ServiceController. Get-WmiObject
+# returns a Win32_Service (cf. __CLASS property of the returned object). The
+# query in the like statement is case insensitive.
+[array]$service = Get-WmiObject -Query "select * from win32_service where name like '%openvpn%'"
+if ($service.Count -gt 1) {
+    Write-Warning "$service.Count matches of the OpenVPN service found!"
+    Write-Warning "Please alert package maintainer with configuration details,"
+    Write-Warning "especially the output of services.msc related to OpenVPN."
+    Write-Warning "The OpenVPN service configuration might fail and a manual"
+    Write-Warning "intervention might be required."
+}
+
 $serviceNeedsRestart = $False
 $serviceStartMode = [System.ServiceProcess.ServiceStartMode]::Manual
 if ($service) {
-    if ($service.Status -eq "Running") {
+    if ($service[0].State -eq "Running") {
         $serviceNeedsRestart = $True
     }
 
-    $serviceStartMode = $service.StartType
+    # The property StartType of the class ServiceController might not available
+    # in the .NET Framework when used with PowerShell 2.0
+    # (cf. https://goo.gl/5NDtZJ). This property has been made available since
+    # .NET 4.6.1 (src.: https://goo.gl/ZSvO7B). Since we cannot rely on this
+    # property, we have two solutions, either using a WMI object or parsing
+    # the registry manually. Let's use WMI as it's available since a long time.
+    $serviceStartMode = $service[0].StartMode
+
+    # Convert Win32_service types to .NET types
+    if ($serviceStartMode -eq "Auto") {
+        # Using the following type does not work
+        # [System.ServiceProcess.ServiceStartMode]::Automatic
+        $serviceStartMode = "Automatic"
+    } elseif ($serviceStartMode -eq "Manual") {
+        $serviceStartMode = "Manual"
+    } elseif ($serviceStartMode -eq "Disabled") {
+        $serviceStartMode = "Disabled"
+    }
 }
 
 Write-Host "Installing OpenVPN..."
@@ -193,28 +217,37 @@ Install-ChocolateyInstallPackage `
     -SilentArgs $silentArgs `
     -File $packageFileName `
     -ValidExitCodes $validExitCodes
-
-$service = Get-Service | Where-Object {$_.Name -like "*OpenVPN*"}
-if (!$service) {
-    throw "The OpenVN should have been installed, but the latter was not found."
+Write-Host "here before"
+[array]$service = Get-Service | Where-Object {$_.Name -like "*OpenVPN*"}
+if ($service.Count -eq 0) {
+    Write-Error "The OpenVPN server cannot be found."
+    Write-Error "Please alert the package maintainer."
+} elseif ($service.Count -gt 1) {
+    Write-Warning "$service.Count matches of the OpenVPN service found!"
+    Write-Warning "Please alert package maintainer with configuration details,"
+    Write-Warning "especially the output of services.msc related to OpenVPN."
+    Write-Warning "The OpenVPN service configuration might fail and a manual"
+    Write-Warning "intervention might be required."
 }
+
 if ($serviceNeedsRestart) {
     try {
         Write-Host "OpenVPN service was previously started. Trying to restarting it..."
-        Restart-Service $service.Name
+        Restart-Service $service[0].Name
         Write-Host "OpenVPN service restarted with successful."
     } catch {
-        # Do not use Write-Error, otherwise chocolatey will think the instalation has failed.
-        Write-Host "OpenVPN service failed to be restarted. Manual intervention required."
+        # Do not use Write-Error, otherwise chocolatey will think the installation has failed.
+        Write-Warning "OpenVPN service failed to be restarted. Manual intervention required."
     }
 }
-if ($serviceStartMode.ToString() -ne 'Manual') {
+
+if ($serviceStartMode -ne 'Manual') {
     try {
-        Write-Host "Trying to reset the OpenVPN service to ""$serviceStartMode.ToString()""..."
-        Set-Service $service.Name -startuptype $serviceStartMode
+        Write-Host "Trying to reset the OpenVPN service to ""$serviceStartMode""..."
+        Set-Service $service[0].Name -StartupType $serviceStartMode
         Write-Host "OpenVPN service set to ""$serviceStartMode"" with successful."
     } catch {
-        Write-Host "OpenVPN service failed to be reset to ""$serviceStartMode"". Manual intervention required."
+        Write-Warning "OpenVPN service failed to be reset to ""$serviceStartMode"". Manual intervention required."
     }
 }
 
