@@ -134,9 +134,12 @@ $input.Close()
 $process.WaitForExit()
 
 Write-Host "Checking PGP signatures..."
+# Surrounding $sigFileName by 2 double quotes is needed, otherwise of the user
+# folder has a space in it, the space is not taken into account and gpg cannot
+# find the signed data to verify.
 $ReturnFromEXE = Start-Process `
     -FilePath "gpg.exe" `
-    -ArgumentList "--verify $sigFileName" `
+    -ArgumentList "--verify ""$sigFileName""" `
     -NoNewWindow -Wait -Passthru
 if (!($ReturnFromEXE.ExitCode -eq 0)) {
     throw "The OpenVPN installer signature does not match. Installation aborted."
