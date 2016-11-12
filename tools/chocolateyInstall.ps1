@@ -235,7 +235,7 @@ if ($service.Count -eq 0) {
 
 if ($serviceNeedsRestart) {
     try {
-        Write-Host "OpenVPN service was previously started. Trying to restarting it..."
+        Write-Host "OpenVPN service was previously started. Trying to restart it..."
         Restart-Service $service[0].Name
         Write-Host "OpenVPN service restarted with successful."
     } catch {
@@ -248,7 +248,7 @@ if ($serviceStartMode -ne 'Manual') {
     try {
         Write-Host "Trying to reset the OpenVPN service to ""$serviceStartMode""..."
         Set-Service $service[0].Name -StartupType $serviceStartMode
-        Write-Host "OpenVPN service set to ""$serviceStartMode"" with successful."
+        Write-Host "OpenVPN service reset to ""$serviceStartMode"" with successful."
     } catch {
         Write-Warning "OpenVPN service failed to be reset to ""$serviceStartMode"". Manual intervention required."
     }
