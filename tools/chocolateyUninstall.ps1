@@ -51,3 +51,9 @@ if ($Env:CHOCOLATEY_VERSION -lt "0.10.4") {
 # The uninstaller changes the PATH, apply these changes in the current PowerShell
 # session (limited to this script).
 Update-SessionEnvironment
+
+# This script does not have to take care of removing the gpg4win-vanilla
+# dependency as Chocolatey as a built-in function for that. To notify the user
+# that a dependency can be removed is unneccessary. If a user wants to
+# uninstall a package and its dependencies (as long as no other package depends
+# on it) a user can run choco uninstall -x when uninstalling a package.
