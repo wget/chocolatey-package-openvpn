@@ -220,7 +220,7 @@ Install-ChocolateyInstallPackage `
     -SilentArgs $silentArgs `
     -File $packageFileName `
     -ValidExitCodes $validExitCodes
-Write-Host "here before"
+
 [array]$service = Get-Service | Where-Object {$_.Name -like "*OpenVPN*"}
 if ($service.Count -eq 0) {
     Write-Error "The OpenVPN server cannot be found."
