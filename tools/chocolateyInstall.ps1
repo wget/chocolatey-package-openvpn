@@ -187,7 +187,7 @@ if ($service.Count -gt 1) {
 }
 
 $serviceNeedsRestart = $False
-$serviceStartMode = [System.ServiceProcess.ServiceStartMode]::Manual
+$serviceStartMode = "Manual"
 if ($service) {
     if ($service[0].State -eq "Running") {
         $serviceNeedsRestart = $True
