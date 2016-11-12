@@ -139,7 +139,7 @@ Write-Host "Checking PGP signatures..."
 # find the signed data to verify.
 $ReturnFromEXE = Start-Process `
     -FilePath "gpg.exe" `
-    -ArgumentList "--verify ""$sigFileName""" `
+    -ArgumentList "--verify ""$sigFileName"" ""$packageFileName""" `
     -NoNewWindow -Wait -Passthru
 if (!($ReturnFromEXE.ExitCode -eq 0)) {
     throw "The OpenVPN installer signature does not match. Installation aborted."
