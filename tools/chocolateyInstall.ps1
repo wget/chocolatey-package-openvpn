@@ -213,7 +213,6 @@ if ($service) {
     }
 }
 
-Write-Host "Installing OpenVPN..."
 Install-ChocolateyInstallPackage `
     -PackageName $packageName `
     -FileType $fileType `
