@@ -102,16 +102,12 @@ $process.StartInfo = $psi
 # on stdout.
 [void]$process.Start()
 # Get the full fingerprint of the key
-$output = $process.StandardOutput.ReadToEnd()
+$pgpFingerprint = $process.StandardOutput.ReadToEnd()
 $process.WaitForExit()
 
 # Parse output
-$output = $output -split ':'
-# Even if the number 6 corresponds to the level 5 (ultimate trust) which is
-# usually dedicated to our own keys. Using the number 5 corresponding to the
-# level 4 (trully trust) is not enough for this case. Checking a signature
-# requires an ultimate trust in the key.
-$output = $output[18] + ":6:"
+$pgpFingerprint = $pgpFingerprint -split ':'
+$pgpFingerprint = $pgpFingerprint[18]
 
 $psi = New-object System.Diagnostics.ProcessStartInfo
 $psi.CreateNoWindow = $true
@@ -126,7 +122,12 @@ $process.StartInfo = $psi
 # Specify the fingerprint and the trust level to stdin
 # e.g.: ABCDEF01234567890ABCDEF01234567890ABCDEF:6:
 $input = $process.StandardInput
-$input.WriteLine($output)
+
+# Even if the number 6 corresponds to the level 5 (ultimate trust) which is
+# usually dedicated to our own keys. Using the number 5 corresponding to the
+# level 4 (trully trust) is not enough for this case. Checking a signature
+# requires an ultimate trust in the key.
+$input.WriteLine($pgpFingerprint + ":6:")
 # Not written until the stream is closed. If not closed, the process will still
 # run and the software will hang.
 # src.: https://goo.gl/5oYgk4
@@ -143,6 +144,15 @@ $ReturnFromEXE = Start-Process `
     -NoNewWindow -Wait -Passthru
 if (!($ReturnFromEXE.ExitCode -eq 0)) {
     throw "The OpenVPN installer signature does not match. Installation aborted."
+}
+
+Write-Host "Untrusting and removing '$pgpKey'..."
+$ReturnFromEXE = Start-Process `
+    -FilePath "gpg.exe" `
+    -ArgumentList "--batch --yes --delete-keys ""$pgpFingerprint""" `
+    -NoNewWindow -Wait -Passthru
+if (!($ReturnFromEXE.ExitCode -eq 0)) {
+    Write-Warning "The OpenVPN installer signature cannot be removed after it has been trusted. Manual intervention required."
 }
 
 # The setup to install a driver for the virtual network device TAP asks us if
