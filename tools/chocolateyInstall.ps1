@@ -1,21 +1,21 @@
 $packageName = 'openvpn'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
-$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.13-I601-i686.exe'
-$url64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.13-I601-x86_64.exe'
+$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-i686.exe'
+$url64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-x86_64.exe'
 # For a list of all silent arguments used
 # https://github.com/OpenVPN/openvpn-build/blob/master/windows-nsis/openvpn.nsi#L431
 # For their description
 # https://github.com/OpenVPN/openvpn-build/blob/master/windows-nsis/openvpn.nsi#L102
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
-$checksum = '182c7d906a9fc081080dc3b4459e3ec867681e6cb645a75d2ebe04d1d06ed14605622c4f34ef4d352bbdf68d81b06e2de634bed75cdb7d939e7f2cdd7973d986'
-$checksum64='9ad6cb9afc7932dc883835cf60b5efd94ee3f0914d1fb948982056abd04df9aeb8eca3554bd13acb356602ee85e202276397a3d0fab78e7f4d854406703e007e'
+$checksum = '082f195e21547135185dddf4e52c41045bf2065a23ec33f07285db9f8a67ede682c1bf9609263aa51997c40b545fa27040ceb3648460646b1ed2bfb394c8e6dd'
+$checksum64='1987e494879f9265d62994b5c34ed7e4c0ea4630599c21847fe168b5186b1b7a4f1971ebc7206a48c809e1f247b7a5ab4b195398bd0e03f885c2123c06c93a02'
 $pgpKey = "samuli_public_key.asc"
-$urlSig = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.13-I601-i686.exe.asc'
-$urlSig64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.13-I601-x86_64.exe.asc'
-$checksumSig = '8857ea92983a69cd31e2df6342e01231b3e934129056d33564e3cef0ddd3c2dc35bd0ecb52dfe4649a2df2421ad68b1d437eb7a21ad1a800993ae598b2f1372a'
-$checksumSig64 = 'dc4ec34b30d8924dfd51975f72f12ee36d7b2bdb3c80a8b8916045d63823ac6ad5833b1f543096296b2d07c4c659ff28811a2328936d11aa1b072856975465bf'
+$urlSig = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-i686.exe.asc'
+$urlSig64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-x86_64.exe.asc'
+$checksumSig = '2aa01bc9f5a9bfac3d06fb55358fa897e2638aebe6eed98acb4a11df0edad252603a9ff97b4ac258c9e8d7c12cfe3397367d52884f6c1e97c48254c331292597'
+$checksumSig64 = '6f46f8e7512338be82e8b266a5077248c6908ff2d5d4ec8b4ed635ab2e6edb3550cf187a6942aecfd2d12ba4af70f8bc34e8c8b6632bcd13d44d09c4084ad3ac'
 
 # This function is based on part of the code of the command
 # Install-ChocolateyPackage
