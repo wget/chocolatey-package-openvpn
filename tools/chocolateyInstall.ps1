@@ -181,7 +181,13 @@ if (!($ReturnFromEXE.ExitCode -eq 0)) {
 # remove the cached drivers as well.
 # src.: https://goo.gl/Zbcs6T
 Write-Host "Adding OpenVPN certificate to have a silent install of the OpenVPN TAP driver..."
-Start-ChocolateyProcessAsAdmin "certutil -addstore 'TrustedPublisher' '$toolsDir\openvpn.cer'"
+$ReturnFromEXE = Start-Process `
+    -FilePath "certutil" `
+    -ArgumentList "-addstore ""TrustedPublisher"" ""$toolsDir\openvpn.cer""" `
+    -NoNewWindow -Wait -Passthru -RedirectStandardOutput $null
+if (!($ReturnFromEXE.ExitCode -eq 0)) {
+    throw "The OpenVPN certificate cannot be added to the certificate store. Installation aborted."
+}
 
 Write-Host "Getting the state of the current OpenVPN service (if any)..."
 # Get-Service returns a System.ServiceProcess.ServiceController. Get-WmiObject
