@@ -36,6 +36,25 @@ function GetTemporaryDirectory {
     return $tempDir
 }
 
+function PrintWhenVerbose {
+	param (
+		[Parameter(Position=0)]
+		[string]
+		$pString
+	)
+
+	# Display the output of the executables if chocolatey is run either in debug
+	# or in verbose mode.
+	if ($env:ChocolateyEnvironmentDebug -eq 'true' -or
+		$env:ChocolateyEnvironmentVerbose -eq 'true') {
+
+		$string = New-Object System.IO.StringReader($pString)
+        while (($line = $string.ReadLine()) -ne $null) {
+		   Write-Verbose $line
+        }
+	}
+}
+
 Write-Host "Downloading package installer..."
 $packageFileName = Get-ChocolateyWebFile `
     -PackageName $packageName `
@@ -75,33 +94,38 @@ if (!(Test-Path "$toolsDir\$pgpKey")) {
     throw "Cannot find the PGP key '$pgpKey'. Unable to check signatures."
 }
 
+$psi = New-object System.Diagnostics.ProcessStartInfo
+$psi.CreateNoWindow = $true
+$psi.UseShellExecute = $false
+$psi.RedirectStandardInput = $true
+$psi.RedirectStandardOutput = $true
+$psi.RedirectStandardError = $true
+$process = New-Object System.Diagnostics.Process
+$process.StartInfo = $psi
+
 Write-Host "Importing '$pgpKey' in GPG trusted keyring..."
 # Simply invoing the command gpg.exe and checking the value of $? was not
 # enough. Using the following method worked and was indeed more reliable.
 # src.: https://goo.gl/Ungugv
-$ReturnFromEXE = Start-Process `
-    -FilePath "gpg.exe" `
-    -ArgumentList "--import $toolsDir\$pgpKey" `
-    -NoNewWindow -Wait -Passthru
-if (!($ReturnFromEXE.ExitCode -eq 0)) {
+$psi.FileName = 'gpg.exe'
+$psi.Arguments = @("--import $toolsDir\$pgpKey")
+# The [void] casting is actually needed to avoid True or False to be displayed
+# on stdout.
+[void]$process.Start()
+PrintWhenVerbose $process.StandardOutput.ReadToEnd()
+PrintWhenVerbose $process.StandardError.ReadToEnd()
+$process.WaitForExit()
+if (!($process.ExitCode -eq 0)) {
     throw "Unable to import PGP key '$pgpKey'. Unable to check signatures."
 }
 
 Write-Host "Trusting '$pgpKey'..."
-# src.: http://stackoverflow.com/a/8762068/3514658
-$psi = New-object System.Diagnostics.ProcessStartInfo
-$psi.CreateNoWindow = $true
-$psi.UseShellExecute = $false
-$psi.RedirectStandardOutput = $true
-$psi.RedirectStandardError = $true
 $psi.FileName = 'gpg.exe'
 $psi.Arguments = @("--with-fingerprint --with-colons $toolsDir\$pgpKey")
-$process = New-Object System.Diagnostics.Process
-$process.StartInfo = $psi
-# The [void] casting is actually needed to avoid True or False to be displayed
-# on stdout.
-[void]$process.Start()
+
 # Get the full fingerprint of the key
+[void]$process.Start()
+# src.: http://stackoverflow.com/a/8762068/3514658
 $pgpFingerprint = $process.StandardOutput.ReadToEnd()
 $process.WaitForExit()
 
@@ -109,14 +133,8 @@ $process.WaitForExit()
 $pgpFingerprint = $pgpFingerprint -split ':'
 $pgpFingerprint = $pgpFingerprint[18]
 
-$psi = New-object System.Diagnostics.ProcessStartInfo
-$psi.CreateNoWindow = $true
-$psi.UseShellExecute = $false
-$psi.RedirectStandardInput = $true
 $psi.FileName = 'gpg.exe'
 $psi.Arguments = @("--import-ownertrust")
-$process = New-Object System.Diagnostics.Process
-$process.StartInfo = $psi
 [void]$process.Start()
 
 # Specify the fingerprint and the trust level to stdin
@@ -138,20 +156,24 @@ Write-Host "Checking PGP signatures..."
 # Surrounding $sigFileName by 2 double quotes is needed, otherwise of the user
 # folder has a space in it, the space is not taken into account and gpg cannot
 # find the signed data to verify.
-$ReturnFromEXE = Start-Process `
-    -FilePath "gpg.exe" `
-    -ArgumentList "--verify ""$sigFileName"" ""$packageFileName""" `
-    -NoNewWindow -Wait -Passthru
-if (!($ReturnFromEXE.ExitCode -eq 0)) {
+$psi.FileName = 'gpg.exe'
+$psi.Arguments = @("--verify $sigFileName $packageFileName")
+[void]$process.Start()
+PrintWhenVerbose $process.StandardOutput.ReadToEnd()
+PrintWhenVerbose $process.StandardError.ReadToEnd()
+$process.WaitForExit()
+if (!($process.ExitCode -eq 0)) {
     throw "The OpenVPN installer signature does not match. Installation aborted."
 }
 
 Write-Host "Untrusting and removing '$pgpKey'..."
-$ReturnFromEXE = Start-Process `
-    -FilePath "gpg.exe" `
-    -ArgumentList "--batch --yes --delete-keys ""$pgpFingerprint""" `
-    -NoNewWindow -Wait -Passthru
-if (!($ReturnFromEXE.ExitCode -eq 0)) {
+$psi.FileName = 'gpg.exe'
+$psi.Arguments = @("--batch --yes --delete-keys $pgpFingerprint")
+[void]$process.Start()
+PrintWhenVerbose $process.StandardOutput.ReadToEnd()
+PrintWhenVerbose $process.StandardError.ReadToEnd()
+$process.WaitForExit()
+if (!($process.ExitCode -eq 0)) {
     Write-Warning "The OpenVPN installer signature cannot be removed after it has been trusted. Manual intervention required."
 }
 
@@ -181,11 +203,13 @@ if (!($ReturnFromEXE.ExitCode -eq 0)) {
 # remove the cached drivers as well.
 # src.: https://goo.gl/Zbcs6T
 Write-Host "Adding OpenVPN certificate to have a silent install of the OpenVPN TAP driver..."
-$ReturnFromEXE = Start-Process `
-    -FilePath "certutil" `
-    -ArgumentList "-addstore ""TrustedPublisher"" ""$toolsDir\openvpn.cer""" `
-    -NoNewWindow -Wait -Passthru -RedirectStandardOutput $null
-if (!($ReturnFromEXE.ExitCode -eq 0)) {
+$psi.FileName = 'certutil'
+$psi.Arguments = @("-addstore TrustedPublisher $toolsDir\openvpn.cer")
+[void]$process.Start()
+PrintWhenVerbose $process.StandardOutput.ReadToEnd()
+PrintWhenVerbose $process.StandardError.ReadToEnd()
+$process.WaitForExit()
+if (!($process.ExitCode -eq 0)) {
     throw "The OpenVPN certificate cannot be added to the certificate store. Installation aborted."
 }
 
