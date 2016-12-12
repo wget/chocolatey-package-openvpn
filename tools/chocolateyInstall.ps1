@@ -16,6 +16,7 @@ $urlSig = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.1
 $urlSig64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-x86_64.exe.asc'
 $checksumSig = '2aa01bc9f5a9bfac3d06fb55358fa897e2638aebe6eed98acb4a11df0edad252603a9ff97b4ac258c9e8d7c12cfe3397367d52884f6c1e97c48254c331292597'
 $checksumSig64 = '6f46f8e7512338be82e8b266a5077248c6908ff2d5d4ec8b4ed635ab2e6edb3550cf187a6942aecfd2d12ba4af70f8bc34e8c8b6632bcd13d44d09c4084ad3ac'
+$certificateFingerprint = "5E66E0CA2367757E800E65B770629026E131A7DC"
 
 # This function is based on part of the code of the command
 # Install-ChocolateyPackage
@@ -291,6 +292,29 @@ if ($serviceStartMode -ne 'Manual') {
     } catch {
         Write-Warning "OpenVPN service failed to be reset to ""$serviceStartMode"". Manual intervention required."
     }
+}
+
+# Let's remove the certificate we inserted
+[array]$cert = Get-ChildItem -Path Cert:\LocalMachine\TrustedPublisher | `
+	Where-Object {$_.Thumbprint -eq $certificateFingerprint}
+
+if ($key.Count -eq 0) {
+    Write-Warning "The OpenVPN certificate has been already removed by other means."
+	Write-Warning "This shouldn't have happened, please alert the package maintainer."
+} else {
+	Write-Host "Removing OpenVPN driver signing certificate added by this installer..."
+	# We still need to use certutil to remove the certificate because the Remove-Item
+	# cmdlet is only available from PowerShell 3.0 and we need Posh 2.0 compatibility.
+	$psi.FileName = 'certutil'
+	$psi.Arguments = @("-addstore -delstore TrustedPublisher $certificateFingerprint")
+	[void]$process.Start()
+	PrintWhenVerbose $process.StandardOutput.ReadToEnd()
+	PrintWhenVerbose $process.StandardError.ReadToEnd()
+	$process.WaitForExit()
+	if (!($process.ExitCode -eq 0)) {
+		Write-Warning "The OpenVPN certificate cannot be removed from the certificate store."
+		Write-Warning "Manual intervention required."
+	}
 }
 
 # The installer changes the PATH, apply these changes in the current PowerShell

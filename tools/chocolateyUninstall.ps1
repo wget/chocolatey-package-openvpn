@@ -9,9 +9,6 @@ $validExitCodes = @(0)
 # PowerShell command does i.e. looking for the right path in the registry
 # manually.
 
-# Let's remove the certificate we inserted
-Write-Host "Removing OpenVPN driver signing certificate added by this installer..."
-Start-ChocolateyProcessAsAdmin "certutil -delstore 'TrustedPublisher' 'OpenVPN Technologies, Inc.'"
 
 [array]$key = Get-UninstallRegistryKey -SoftwareName "OpenVPN*"
 
