@@ -63,28 +63,28 @@ function GetServiceProperties {
 	# Lets return our own object.
 	# src.: http://stackoverflow.com/a/12621314
 	$properties = "" | Select-Object -Property name,status,startupType,delayedStart
-	$properties.name = $name
 
 	# The Get-Service Cmdlet returns a System.ServiceProcess.ServiceController
-	[array]$services = Get-Service $name
-	if ($services.Count -eq 0) {
-		throw "The service '$name' was not found using the Get-Service Cmdlet"
-	} elseif ($services.Count -gt 1) {
-		Write-Warning "$($services.Count) services have been reported when searching for the service '$name'"
-		Write-Warning "Only the properties of the first one will be returned"
-	}
+    # Get-Service throws an exception when the exact case insensitive service
+    # is not found. Therefore, there is no need to make any further checks.
+	$service = Get-Service $name
+
+    # Correct to the exact service name
+    $properties.name = $service.Name
 
 	# Get the service status. The Status property returns an enumeration
 	# ServiceControllerStatus src.: https://goo.gl/oq8Bbx
 	# This cannot be tested directly from CLI as the .NET assembly is not
 	# loaded, we get an exception
 	[array]$statusAvailable = [enum]::GetValues([System.ServiceProcess.ServiceControllerStatus])
-	Write-Host $statusAvailable
-	if ($statusAvailable -contains "$($services[0].Status)") {
-		$properties.status = $services[0].Status
-	} else {
-		throw "The status type is invalid"
+	if ($statusAvailable -notcontains "$($service.Status)") {
+        $errorString = "The status '$service.status' must be '"
+		$errorString += $statusAvailable -join "', '"
+		$errorString += "'"
+		throw "$errorString"
 	}
+
+    $properties.status = $service.Status
 
 	# The property StartType of the class System.ServiceProcess.ServiceController
 	# might not available in the .NET Framework when used with PowerShell 2.0
@@ -96,21 +96,14 @@ function GetServiceProperties {
 
 	# To list all the properties of an object:
 	# $services[0] | Get-ItemProperty
-	# To have an exact match but case insensitive, we can use -eq but need to
-	#surround the array with @()
-	# src.: http://stackoverflow.com/q/41377255/3514658
-	[array]$services = @(Get-ChildItem HKLM:\SYSTEM\CurrentControlSet\Services |
-					   Where-Object {$_.PsChildName -eq "$name" })
-	if ($services.Count -eq 0) {
+	$service = Get-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\$name
+	if (!$service) {
 		throw "The service '$name' was not found using the registry"
-	} elseif ($services.Count -gt 1) {
-		Write-Warning "$($services.Count) services have been reported when searching for the service '$name'"
-		Write-Warning "Only the properties of the first one will be returned"
 	}
 
 	# The values are the ones defined in
 	# [enum]::GetValues([System.ServiceProcess.ServiceStartMode])
-	switch ($services[0].GetValue("Start")) {
+	switch ($service.Start) {
 		2 { $properties.startupType = "Automatic" }
 		3 { $properties.startupType = "Manual" }
 		4 { $properties.startupType = "Disabled" }
@@ -119,7 +112,7 @@ function GetServiceProperties {
 
 	# If the delayed flag is not set, there is no record DelayedAutoStart to the
 	# object.
-	if ($services[0].GetValue("DelayedAutoStart") -eq 1) {
+	if ($service.DelayedAutoStart) {
 		$properties.delayedStart = $true
 	} else {
 		$properties.delayedStart = $false
