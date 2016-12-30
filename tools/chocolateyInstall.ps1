@@ -1,21 +1,17 @@
 $packageName = 'openvpn'
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
-$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-i686.exe'
-$url64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-x86_64.exe'
+$url = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.4.0-I601.exe'
 # For a list of all silent arguments used
-# https://github.com/OpenVPN/openvpn-build/blob/master/windows-nsis/openvpn.nsi#L431
+# https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L551
 # For their description
-# https://github.com/OpenVPN/openvpn-build/blob/master/windows-nsis/openvpn.nsi#L102
+# https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L107
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
-$checksum = '082f195e21547135185dddf4e52c41045bf2065a23ec33f07285db9f8a67ede682c1bf9609263aa51997c40b545fa27040ceb3648460646b1ed2bfb394c8e6dd'
-$checksum64='1987e494879f9265d62994b5c34ed7e4c0ea4630599c21847fe168b5186b1b7a4f1971ebc7206a48c809e1f247b7a5ab4b195398bd0e03f885c2123c06c93a02'
+$checksum = '22e5101f8d4de440359689b509cb2ca9318a96e3c8f0c2daa0c35f76d9b8608b1adc5f2fad97f63fcc63845c860ad735a70eee90d3f1551bb4c9eea12d69eb94'
 $pgpKey = "samuli_public_key.asc"
-$urlSig = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-i686.exe.asc'
-$urlSig64 = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.3.14-I601-x86_64.exe.asc'
-$checksumSig = '2aa01bc9f5a9bfac3d06fb55358fa897e2638aebe6eed98acb4a11df0edad252603a9ff97b4ac258c9e8d7c12cfe3397367d52884f6c1e97c48254c331292597'
-$checksumSig64 = '6f46f8e7512338be82e8b266a5077248c6908ff2d5d4ec8b4ed635ab2e6edb3550cf187a6942aecfd2d12ba4af70f8bc34e8c8b6632bcd13d44d09c4084ad3ac'
+$urlSig = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.4.0-I601.exe.asc'
+$checksumSig = 'c88d6b96f572d466c53a61f58a9cd0a75859aa02aba8fc0d407df38b7f9ecc2c34ec81ab997ae0c4e2e9d42872c5b2b610259460aaa4c9c599b61981b4e71742'
 $certificateFingerprint = "5E66E0CA2367757E800E65B770629026E131A7DC"
 
 # This function is based on part of the code of the command
@@ -61,11 +57,8 @@ $packageFileName = Get-ChocolateyWebFile `
     -PackageName $packageName `
     -FileFullPath $(Join-Path $(GetTemporaryDirectory) "$($packageName)Install.$fileType")`
     -Url $url `
-    -Url64bit $url64 `
     -Checksum $checksum `
-    -ChecksumType 'sha512' `
-    -Checksum64 $checksum64 `
-    -ChecksumType64 'sha512'
+    -ChecksumType 'sha512'
 
 # Download signature and saving it as the original name
 # The GPG signature needs to have the same filename as the file checked but
@@ -78,11 +71,8 @@ $sigFileName = Get-ChocolateyWebFile `
     -PackageName $packageName `
     -FileFullPath $(Join-Path $(GetTemporaryDirectory) "$($packageName)Install.$fileType.asc")`
     -Url $urlSig `
-    -Url64bit $urlSig64 `
     -Checksum $checksumSig `
-    -ChecksumType 'sha512' `
-    -Checksum64 $checksumSig64 `
-    -ChecksumType64 'sha512'
+    -ChecksumType 'sha512'
 
 # If GPG has been just added, need to refresh to access to it from this session
 Update-SessionEnvironment
