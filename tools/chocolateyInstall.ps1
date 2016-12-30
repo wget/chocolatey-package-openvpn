@@ -174,18 +174,29 @@ if (!($process.ExitCode -eq 0)) {
 # keystore.
 #
 # In order to get that certificate, we had to
-# - install the driver accepting the certificate,
-# - tick the checkbox "Always trust software from "OpenVPN Technologies, Inc.""
+# - Install the driver accepting the certificate
+# - Tick the checkbox "Always trust software from "OpenVPN Technologies, Inc.""
 #   which has the effect to consider OpenVPN as a trusted publisher
-# - then run certmgr.msc,
-# - expand "Certificates (Local Computer) –> Trusted Publishers –> Certificates",
-# - right click the OpenVPN Technologies certificate
-# - select "All Tasks –> Export..."
-# - click Next
-# - select Base64 encoded x.509 (.CER) and click Next
-# - click Browse, navigate to the location you wish to save the certificate and click Next
-# - click Finish
-# - click OK
+# - As by default, only certificates of the local users are displayed in the
+#   certificate manager, we need to add the view for the whole computer first.
+#   For that, we need to run the Microsoft Management Console, run mmc.exe
+# - Then go to "File -> Add/Remove Snap-in..."
+# - Select "Certificates" from the left list view then run certmgr.msc,
+# - Click the "Add >" button at the center of the window
+# - Select the "Computer account" radio button
+# - Click the "Next >" button
+# - Click the "Finish" button
+# - Click the "OK" button
+# - Expand "Certificates (Local Computer) -> Trusted Publishers -> Certificates"
+# - Right click the "OpenVPN Technologies, Inc." certificate
+# - Select "All Tasks -> Export..."
+# - Click the "Next >" button
+# - Select the "Base64 encoded x.509 (.CER)" radio button
+# - Click the "Next" button
+# - Select a destination and a filename you wish to save the certificate
+# - Click the "Next >" button
+# - Click the "Finish" button
+# - Click the "OK" button from the confirmation dialog box
 # The certificate is now in the location specified.
 # src.: https://goo.gl/o3BVGJ
 # Next time we install the software, even if we remove that certificate,
