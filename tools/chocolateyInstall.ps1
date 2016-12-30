@@ -34,20 +34,20 @@ function GetTemporaryDirectory {
 }
 
 function PrintWhenVerbose {
-	param (
-		[Parameter(Position=0)]
-		[string]
-		$pString
-	)
+    param (
+        [Parameter(Position=0)]
+        [string]
+        $pString
+    )
 
-	# Display the output of the executables if chocolatey is run either in debug
-	# or in verbose mode.
-	if ($env:ChocolateyEnvironmentDebug -eq 'true' -or
-		$env:ChocolateyEnvironmentVerbose -eq 'true') {
+    # Display the output of the executables if chocolatey is run either in debug
+    # or in verbose mode.
+    if ($env:ChocolateyEnvironmentDebug -eq 'true' -or
+        $env:ChocolateyEnvironmentVerbose -eq 'true') {
 
-		$string = New-Object System.IO.StringReader($pString)
+        $string = New-Object System.IO.StringReader($pString)
         while (($line = $string.ReadLine()) -ne $null) {
-		   Write-Verbose $line
+           Write-Verbose $line
         }
 	}
 }
@@ -286,25 +286,25 @@ if ($serviceStartMode -ne 'Manual') {
 
 # Let's remove the certificate we inserted
 [array]$cert = Get-ChildItem -Path Cert:\LocalMachine\TrustedPublisher | `
-	Where-Object {$_.Thumbprint -eq $certificateFingerprint}
+    Where-Object {$_.Thumbprint -eq $certificateFingerprint}
 
 if ($key.Count -eq 0) {
     Write-Warning "The OpenVPN certificate has been already removed by other means."
-	Write-Warning "This shouldn't have happened, please alert the package maintainer."
+    Write-Warning "This shouldn't have happened, please alert the package maintainer."
 } else {
-	Write-Host "Removing OpenVPN driver signing certificate added by this installer..."
-	# We still need to use certutil to remove the certificate because the Remove-Item
-	# cmdlet is only available from PowerShell 3.0 and we need Posh 2.0 compatibility.
-	$psi.FileName = 'certutil'
-	$psi.Arguments = @("-addstore -delstore TrustedPublisher $certificateFingerprint")
-	[void]$process.Start()
-	PrintWhenVerbose $process.StandardOutput.ReadToEnd()
-	PrintWhenVerbose $process.StandardError.ReadToEnd()
-	$process.WaitForExit()
-	if (!($process.ExitCode -eq 0)) {
-		Write-Warning "The OpenVPN certificate cannot be removed from the certificate store."
-		Write-Warning "Manual intervention required."
-	}
+    Write-Host "Removing OpenVPN driver signing certificate added by this installer..."
+    # We still need to use certutil to remove the certificate because the Remove-Item
+    # cmdlet is only available from PowerShell 3.0 and we need Posh 2.0 compatibility.
+    $psi.FileName = 'certutil'
+    $psi.Arguments = @("-delstore TrustedPublisher $certificateFingerprint")
+    [void]$process.Start()
+    PrintWhenVerbose $process.StandardOutput.ReadToEnd()
+    PrintWhenVerbose $process.StandardError.ReadToEnd()
+    $process.WaitForExit()
+    if (!($process.ExitCode -eq 0)) {
+        Write-Warning "The OpenVPN certificate cannot be removed from the certificate store."
+        Write-Warning "Manual intervention required."
+    }
 }
 
 # The installer changes the PATH, apply these changes in the current PowerShell
