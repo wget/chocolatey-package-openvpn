@@ -49,7 +49,83 @@ function PrintWhenVerbose {
         while (($line = $string.ReadLine()) -ne $null) {
            Write-Verbose $line
         }
+    }
+}
+
+# To test function outside of chocolatey, just copy them to another file and
+# run the following command:
+# powershell -ExecutionPolicy Unrestricted -File .\yourFile.ps1
+function GetServiceProperties {
+	param (
+		[Parameter(Mandatory=$true)][string]$name
+	)
+
+	# Lets return our own object.
+	# src.: http://stackoverflow.com/a/12621314
+	$properties = "" | Select-Object -Property name,status,startupType,delayedStart
+	$properties.name = $name
+
+	# The Get-Service Cmdlet returns a System.ServiceProcess.ServiceController
+	[array]$services = Get-Service $name
+	if ($services.Count -eq 0) {
+		throw "The service '$name' was not found using the Get-Service Cmdlet"
+	} elseif ($services.Count -gt 1) {
+		Write-Warning "$($services.Count) services have been reported when searching for the service '$name'"
+		Write-Warning "Only the properties of the first one will be returned"
 	}
+
+	# Get the service status. The Status property returns an enumeration
+	# ServiceControllerStatus src.: https://goo.gl/oq8Bbx
+	# This cannot be tested directly from CLI as the .NET assembly is not
+	# loaded, we get an exception
+	[array]$statusAvailable = [enum]::GetValues([System.ServiceProcess.ServiceControllerStatus])
+	Write-Host $statusAvailable
+	if ($statusAvailable -contains "$($services[0].Status)") {
+		$properties.status = $services[0].Status
+	} else {
+		throw "The status type is invalid"
+	}
+
+	# The property StartType of the class System.ServiceProcess.ServiceController
+	# might not available in the .NET Framework when used with PowerShell 2.0
+    # (cf. https://goo.gl/5NDtZJ). This property has been made available since
+    # .NET 4.6.1 (src.: https://goo.gl/ZSvO7B).
+	# Since we cannot rely on this property, we need to find another solution.
+	# While WMI is widely available and working, let's parse the registry;
+	# later we will need an info exclusively storred in it.
+
+	# To list all the properties of an object:
+	# $services[0] | Get-ItemProperty
+	# To have an exact match but case insensitive, we can use -eq but need to
+	#surround the array with @()
+	# src.: http://stackoverflow.com/q/41377255/3514658
+	[array]$services = @(Get-ChildItem HKLM:\SYSTEM\CurrentControlSet\Services |
+					   Where-Object {$_.PsChildName -eq "$name" })
+	if ($services.Count -eq 0) {
+		throw "The service '$name' was not found using the registry"
+	} elseif ($services.Count -gt 1) {
+		Write-Warning "$($services.Count) services have been reported when searching for the service '$name'"
+		Write-Warning "Only the properties of the first one will be returned"
+	}
+
+	# The values are the ones defined in
+	# [enum]::GetValues([System.ServiceProcess.ServiceStartMode])
+	switch ($services[0].GetValue("Start")) {
+		2 { $properties.startupType = "Automatic" }
+		3 { $properties.startupType = "Manual" }
+		4 { $properties.startupType = "Disabled" }
+		default { throw "The startup type is invalid" }
+	}
+
+	# If the delayed flag is not set, there is no record DelayedAutoStart to the
+	# object.
+	if ($services[0].GetValue("DelayedAutoStart") -eq 1) {
+		$properties.delayedStart = $true
+	} else {
+		$properties.delayedStart = $false
+	}
+
+	return $properties
 }
 
 Write-Host "Downloading package installer..."
