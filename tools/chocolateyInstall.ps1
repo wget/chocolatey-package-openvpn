@@ -14,6 +14,10 @@ $urlSig = 'https://swupdate.openvpn.org/community/releases/openvpn-install-2.4.0
 $checksumSig = 'c88d6b96f572d466c53a61f58a9cd0a75859aa02aba8fc0d407df38b7f9ecc2c34ec81ab997ae0c4e2e9d42872c5b2b610259460aaa4c9c599b61981b4e71742'
 $certificateFingerprint = "5E66E0CA2367757E800E65B770629026E131A7DC"
 
+# To test function outside of chocolatey, just copy them to another file and
+# run the following command:
+# powershell -ExecutionPolicy Unrestricted -File .\yourFile.ps1
+
 # This function is based on part of the code of the command
 # Install-ChocolateyPackage
 # src.: https://goo.gl/jUpwOQ
@@ -52,9 +56,16 @@ function PrintWhenVerbose {
     }
 }
 
-# To test function outside of chocolatey, just copy them to another file and
-# run the following command:
-# powershell -ExecutionPolicy Unrestricted -File .\yourFile.ps1
+<#
+.DESCRIPTION
+Get service properties
+.OUTPUTS
+An object made of the following fields:
+- name (string)
+- status (string)
+- startupType (string)
+- delayedStart (bool)
+#>
 function GetServiceProperties {
 	param (
 		[Parameter(Mandatory=$true)][string]$name
@@ -67,9 +78,12 @@ function GetServiceProperties {
 	# The Get-Service Cmdlet returns a System.ServiceProcess.ServiceController
     # Get-Service throws an exception when the exact case insensitive service
     # is not found. Therefore, there is no need to make any further checks.
-	$service = Get-Service $name
+	$service = Get-Service $name -ErrorAction Stop
 
     # Correct to the exact service name
+    if ($name -cnotmatch $service.Name) {
+        Write-Warning "The case sensitive service name is '$($service.Name)' not '$name'"
+    }
     $properties.name = $service.Name
 
 	# Get the service status. The Status property returns an enumeration
