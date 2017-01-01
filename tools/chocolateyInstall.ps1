@@ -75,6 +75,13 @@ function GetServiceProperties {
 	# src.: http://stackoverflow.com/a/12621314
 	$properties = "" | Select-Object -Property name,status,startupType,delayedStart
 
+	# Get-Service is not throwing an exception when the service name
+	# contains * (asterisks) and the service is not found. Prevent that.
+	if ($name -cmatch "\*") {
+		Write-Warning "Asterisks have been discarded from the service name '$name'"
+		$name = $name -Replace "\*",""
+	}
+
 	# The Get-Service Cmdlet returns a System.ServiceProcess.ServiceController
     # Get-Service throws an exception when the exact case insensitive service
     # is not found. Therefore, there is no need to make any further checks.
