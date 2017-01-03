@@ -1,0 +1,3 @@
+[submodule "tools/utils"]
+	path = tools/utils
+	url = git@github.com:wget/chocolatey_custom_functions.git
