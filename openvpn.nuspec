@@ -14,7 +14,7 @@
 
         This package will be installed with the following options:
         * `/SELECT_OPENVPN=1`             : Install OpenVPN user-space components, including openvpn.exe
-        * `/SELECT_SERVICE=1`             : Install the OpenVPN service wrappers       
+        * `/SELECT_SERVICE=1`             : Install the OpenVPN service wrappers
         * `/SELECT_TAP=1`                 : Install/upgrade the TAP virtual device driver
         * `/SELECT_OPENVPNGUI=1`          : Install OpenVPN GUI by Mathias Sundman
         * `/SELECT_ASSOCIATIONS=1`        : Register OpenVPN config file association (*.ovpn)
@@ -28,6 +28,10 @@
         * `/SELECT_PKCS11DLLS=1`          : Install PKCS#11 helper DLLs locally (may be omitted if DLLs are already installed globally)
 
         The only difference with the default package configuration is the EASYRSA option enabled while the default install disables it.
+
+        In order to be started automatically, your configuration still needs to reside in C:\Program Files\OpenVPN\config\.
+        By design, OpenVPN-GUI does not show connections started automatically; it only shows connections started by the current user.
+        For more info, read: https://github.com/OpenVPN/openvpn-gui/blob/master/README.rst#adding-an-openvpn-configuration-file
         </description>
         <projectUrl>https://openvpn.net/index.php/open-source/</projectUrl>
         <tags>openvpn community tunnel ssl admin</tags>
