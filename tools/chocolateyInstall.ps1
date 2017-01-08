@@ -42,14 +42,31 @@ $sigFileName = Get-ChocolateyWebFile `
 # If GPG has been just added, need to refresh to access to it from this session
 Update-SessionEnvironment
 
-CheckPGPSignature -pgpKey "$toolsDir\$pgpKey" -signatureFile "$sigFileName" -file "$packageFileName"
+CheckPGPSignature `
+    -pgpKey "$toolsDir\$pgpKey" `
+    -signatureFile "$sigFileName" `
+    -file "$packageFileName"
 
 Write-Host "Adding OpenVPN to the Trusted Publishers (needed to have a silent install of the TAP driver)..."
 AddTrustedPublisherCertificate -file "$toolsDir\openvpn.cer"
 
 Write-Host "Getting the state of the current OpenVPN service (if any)..."
+# Needed to reset the state of the Interactive service if upgrading from a
+# branch 2.4 or reinstalling a build from the branch 2.4
+try {
+    $previousInteractiveService = GetServiceProperties "OpenVPNServiceInteractive"
+    Write-Debug "$($previousInteractiveService.Name) is set to" `
+        "$($previousInteractiveService.Status) and" `
+        "$($previousInteractiveService.StartupType)"
+} catch {
+    Write-Host "No previous OpenVPN interactive service detected."
+}
+# Needed for all cases 2.3 to 2.4 or 2.4 to 2.4.x and onwards
 try {
     $previousService = GetServiceProperties "OpenVpnService"
+    Write-Debug "$($previousService.Name) is set to" `
+        "$($previousService.Status) and " `
+        "$($previousService.StartupType)"
 } catch {
     Write-Host "No previous OpenVPN service detected."
 }
@@ -61,9 +78,24 @@ Install-ChocolateyInstallPackage `
     -File $packageFileName `
     -ValidExitCodes $validExitCodes
 
+if ($previousInteractiveService) {
+    Write-Host "Resetting previous OpenVPN interactive service to " `
+        "'$($previousInteractiveService.status)' and " `
+        "'$($previousInteractiveService.startupType)'..."
+    SetServiceProperties `
+        -name "OpenVPNServiceInteractive" `
+        -status "$($previousInteractiveService.status)" `
+        -startupType "$($previousInteractiveService.startupType)"
+}
+
 if ($previousService) {
-    Write-Host "Resetting previous OpenVPN service state..."
-    SetServiceProperties -name "OpenVPNService" -status "$previousService.status" -startupType "$previousService.startupType"
+    Write-Host "Resetting previous OpenVPN service to " `
+        "'$($previousService.status)' and "  `
+        "'$($previousService.startupType)'..."
+    SetServiceProperties `
+        -name "OpenVPNService" `
+        -status "$($previousService.status)" `
+        -startupType "$($previousService.startupType)"
 }
 
 Write-Host "Removing OpenVPN from the Trusted Publishers..."
