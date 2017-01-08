@@ -55,18 +55,12 @@ Write-Host "Getting the state of the current OpenVPN service (if any)..."
 # branch 2.4 or reinstalling a build from the branch 2.4
 try {
     $previousInteractiveService = GetServiceProperties "OpenVPNServiceInteractive"
-    Write-Debug "$($previousInteractiveService.Name) is set to" `
-        "$($previousInteractiveService.Status) and" `
-        "$($previousInteractiveService.StartupType)"
 } catch {
     Write-Host "No previous OpenVPN interactive service detected."
 }
 # Needed for all cases 2.3 to 2.4 or 2.4 to 2.4.x and onwards
 try {
     $previousService = GetServiceProperties "OpenVpnService"
-    Write-Debug "$($previousService.Name) is set to" `
-        "$($previousService.Status) and " `
-        "$($previousService.StartupType)"
 } catch {
     Write-Host "No previous OpenVPN service detected."
 }
