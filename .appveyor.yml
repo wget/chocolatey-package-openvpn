@@ -1,0 +1,57 @@
+version: '{build}'
+image: WMF 5
+init:
+- ps: >-
+    # Please uncomment to have a RDP session, particularly useful to debug
+    # src.: https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+    #iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+    #
+    # The $env:PATH is way too long; try to reduce it a bit.
+    # src.: https://gist.github.com/wget/a102f89c301014836aaa49a98dd06ee2
+
+    Write-Host "This is the path: $env:path"
+
+    Write-Host "Reducing too long PATH by removing all the stuff added in Program Files except Git"
+
+    [array]$newPath=($env:path -split ';') | Where-Object { $_ -notlike "C:\Program Files*"}
+
+    $newPath += ($env:path -split ';') | Where-Object { $_ -like "C:\Program Files*\*Git*"}
+
+    $env:path = $newPath -join ';'
+
+    [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+
+    [Environment]::SetEnvironmentVariable("INCLUDE", $env:INCLUDE, [System.EnvironmentVariableTarget]::User)
+
+    Write-Host "This is the new path: $env:path"
+clone_script:
+- ps: >-
+    # The git process needs to be used with Start-Process when PS is used,
+    # otherwise the parsing of the arguments will fail.
+
+    Start-Process -FilePath "git" -ArgumentList "config --global url.https://github.com/wget/chocolatey.insteadOf git@github.com:wget/chocolatey" -NoNewWindow -Wait -Passthru
+
+    Start-Process -FilePath "git" -ArgumentList "clone --recursive git@github.com:wget/chocolatey-package-openvpn.git" -NoNewWindow -Wait -Passthru
+nuget:
+  disable_publish_on_pr: true
+build_script:
+- ps: >-
+    cd chocolatey-package-openvpn
+
+    choco pack .\openvpn.nuspec
+test: off
+artifacts:
+- path: chocolatey-package-openvpn\*.nupkg
+deploy: off
+notifications:
+- provider: Email
+  to:
+  - william+chocolatey@gathoye.be
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
+on_success:
+- ps: >-
+    choco install openvpn -fdv -source "'.;https://chocolatey.org/api/v2/'" --yes
+
+    choco uninstall openvpn -y -dv

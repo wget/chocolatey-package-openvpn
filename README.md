@@ -1,4 +1,5 @@
 # OpenVPN
+[![AppVeyor](https://img.shields.io/appveyor/ci/wget/chocolatey-package-openvpn.svg)](https://ci.appveyor.com/project/wget/chocolatey-package-openvpn)
 
 This repository contains the sources of the [package OpenVPN](https://chocolatey.org/packages/openvpn/) for [Chocolatey, the package manager for Windows](https://chocolatey.org/).
 
