@@ -30,7 +30,7 @@ function au_BeforeUpdate {
 
     $filePath = "$toolsPath/openvpnInstall.exe.asc"
     Write-Host "Downloading installer signature to '$filePath'..."
-    $client.DownloadFile($Latest.url, $filePath)
+    $client.DownloadFile($Latest.urlSig, $filePath)
     $Latest.checksumSig = Get-FileHash $filePath -Algorithm sha512 | % Hash
 }
 
