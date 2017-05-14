@@ -13,35 +13,25 @@ $checksum = '83ac5500f9fc15c65bf8f2ca90f04c3043b7431fef763408c29746a7385b5a3ea31
 $urlSig = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.1-I601.exe.asc'
 $checksumSig = '8a250f7d77b96de64aa113bb9468f3d26d41f231ab3cb894bfacb8c809631db4227e8c5662d84512ae4fad2facf57ed8cb3e2ac3e6ed719f4d5b195fe43fa225'
 $pgpKey = "samuli_public_key.asc"
+$packageFileName = "$($packageName)Install.$fileType"
+$sigFileName = "$($packageFileName).asc"
 
 # Load custom functions
 . "$toolsDir\utils\utils.ps1"
 
-Write-Host "Downloading package installer..."
-$packageFileName = Get-ChocolateyWebFile `
-    -PackageName $packageName `
-    -FileFullPath $(Join-Path $(CreateTempDirPackageVersion) "$($packageName)Install.$fileType")`
-    -Url $url `
-    -Checksum $checksum `
+# If GPG has been just added, need to refresh to access to it from this session
+Update-SessionEnvironment
+
+Get-ChecksumValid `
+    -File "$toolsDir\$sigFileName"
+    -Checksum "$checksumSig"
     -ChecksumType 'sha512'
 
-# Download signature and saving it as the original name
 # The GPG signature needs to have the same filename as the file checked but
 # with the .asc suffix, otherwise gpg reports it cannot verify the file with
 # the following message:
 # gpg: no signed data
 # gpg: can't hash datafile: No data
-Write-Host "Downloading package signature..."
-$sigFileName = Get-ChocolateyWebFile `
-    -PackageName $packageName `
-    -FileFullPath $(Join-Path $(CreateTempDirPackageVersion) "$($packageName)Install.$fileType.asc")`
-    -Url $urlSig `
-    -Checksum $checksumSig `
-    -ChecksumType 'sha512'
-
-# If GPG has been just added, need to refresh to access to it from this session
-Update-SessionEnvironment
-
 CheckPGPSignature `
     -pgpKey "$toolsDir\$pgpKey" `
     -signatureFile "$sigFileName" `
@@ -52,18 +42,24 @@ AddTrustedPublisherCertificate -file "$toolsDir\openvpn.cer"
 
 Write-Host "Getting the state of the current OpenVPN service (if any)..."
 # Needed to reset the state of the Interactive service if upgrading from a
-# branch 2.4 or reinstalling a build from the branch 2.4
+# branch 2.4 and onwards or reinstalling a build from the branch 2.4
 try {
     $previousInteractiveService = GetServiceProperties "OpenVPNServiceInteractive"
 } catch {
     Write-Host "No previous OpenVPN interactive service detected."
 }
-# Needed for all cases 2.3 to 2.4 or 2.4 to 2.4.x and onwards
+# Even if 2.4.1 fixes reset of services. This is still needed for all cases 2.3
+# to 2.4 or 2.4 to 2.4.x and onwards.
 try {
     $previousService = GetServiceProperties "OpenVpnService"
 } catch {
     Write-Host "No previous OpenVPN service detected."
 }
+
+Get-ChecksumValid `
+    -File "$toolsDir\$packageFileName"
+    -Checksum "$checksum"
+    -ChecksumType 'sha512'
 
 Install-ChocolateyInstallPackage `
     -PackageName $packageName `
