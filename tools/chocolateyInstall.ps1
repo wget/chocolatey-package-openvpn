@@ -23,8 +23,8 @@ $sigFileName = "$($packageFileName).asc"
 Update-SessionEnvironment
 
 Get-ChecksumValid `
-    -File "$toolsDir\$sigFileName"
-    -Checksum "$checksumSig"
+    -File "$toolsDir\$sigFileName" `
+    -Checksum "$checksumSig" `
     -ChecksumType 'sha512'
 
 # The GPG signature needs to have the same filename as the file checked but
@@ -57,8 +57,8 @@ try {
 }
 
 Get-ChecksumValid `
-    -File "$toolsDir\$packageFileName"
-    -Checksum "$checksum"
+    -File "$toolsDir\$packageFileName" `
+    -Checksum "$checksum" `
     -ChecksumType 'sha512'
 
 Install-ChocolateyInstallPackage `
