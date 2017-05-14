@@ -12,9 +12,10 @@ $url = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.1-I601.
 $checksum = '83ac5500f9fc15c65bf8f2ca90f04c3043b7431fef763408c29746a7385b5a3ea313e11cf4fd274559c8cd9ba811cc6df49d2a84b94330f738fa31724edca4ba'
 $urlSig = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.1-I601.exe.asc'
 $checksumSig = '8a250f7d77b96de64aa113bb9468f3d26d41f231ab3cb894bfacb8c809631db4227e8c5662d84512ae4fad2facf57ed8cb3e2ac3e6ed719f4d5b195fe43fa225'
-$pgpKey = "samuli_public_key.asc"
-$packageFileName = "$($packageName)Install.$fileType"
-$sigFileName = "$($packageFileName).asc"
+$certFilename = "$toolsDir\openvpn.cer"
+$pgpKeyFileName = "$toolsDir\samuli_public_key.asc"
+$packageFileName = "$toolsDir\$($packageName)Install.$fileType"
+$sigFileName = "$toolsDir\$($packageName)Install.$fileType.asc"
 
 # Load custom functions
 . "$toolsDir\utils\utils.ps1"
@@ -23,7 +24,7 @@ $sigFileName = "$($packageFileName).asc"
 Update-SessionEnvironment
 
 Get-ChecksumValid `
-    -File "$toolsDir\$sigFileName" `
+    -File "$sigFileName" `
     -Checksum "$checksumSig" `
     -ChecksumType 'sha512'
 
@@ -33,12 +34,12 @@ Get-ChecksumValid `
 # gpg: no signed data
 # gpg: can't hash datafile: No data
 CheckPGPSignature `
-    -pgpKey "$toolsDir\$pgpKey" `
+    -pgpKey "$pgpKeyFileName" `
     -signatureFile "$sigFileName" `
     -file "$packageFileName"
 
 Write-Host "Adding OpenVPN to the Trusted Publishers (needed to have a silent install of the TAP driver)..."
-AddTrustedPublisherCertificate -file "$toolsDir\openvpn.cer"
+AddTrustedPublisherCertificate -file "$certFileName"
 
 Write-Host "Getting the state of the current OpenVPN service (if any)..."
 # Needed to reset the state of the Interactive service if upgrading from a
@@ -57,7 +58,7 @@ try {
 }
 
 Get-ChecksumValid `
-    -File "$toolsDir\$packageFileName" `
+    -File "$packageFileName" `
     -Checksum "$checksum" `
     -ChecksumType 'sha512'
 
@@ -89,4 +90,4 @@ if ($previousService) {
 }
 
 Write-Host "Removing OpenVPN from the Trusted Publishers..."
-RemoveTrustedPublisherCertificate -file "$toolsDir\openvpn.cer"
+RemoveTrustedPublisherCertificate -file "$certFileName"

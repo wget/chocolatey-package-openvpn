@@ -14,7 +14,7 @@ function global:au_SearchReplace {
 }
 
 function au_BeforeUpdate {
-    # We can't rely on Get-RemoteChecksum as we want to have the file locally
+    # We can't rely on Get-RemoteChecksum as we want to have the files locally
     # as well and this function will download a local copy of the file, just to
     # compute its hashes, then drop it. We can't rely completely on
     # Get-RemoteFiles either as that function is only taking Latest URLs (x64
