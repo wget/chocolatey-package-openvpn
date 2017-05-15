@@ -8,9 +8,7 @@ $fileType = 'exe'
 # https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L107
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
-$url = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.1-I601.exe'
 $checksum = '83ac5500f9fc15c65bf8f2ca90f04c3043b7431fef763408c29746a7385b5a3ea313e11cf4fd274559c8cd9ba811cc6df49d2a84b94330f738fa31724edca4ba'
-$urlSig = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.1-I601.exe.asc'
 $checksumSig = '8a250f7d77b96de64aa113bb9468f3d26d41f231ab3cb894bfacb8c809631db4227e8c5662d84512ae4fad2facf57ed8cb3e2ac3e6ed719f4d5b195fe43fa225'
 $certFilename = "$toolsDir\openvpn.cer"
 $pgpKeyFileName = "$toolsDir\samuli_public_key.asc"
