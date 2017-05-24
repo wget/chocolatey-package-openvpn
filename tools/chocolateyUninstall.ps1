@@ -40,10 +40,8 @@ if ($key.Count -eq 1) {
 # SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OpenVPN
 # A fix for this issue is already present in choco 0.10.4
 # https://github.com/chocolatey/choco/issues/1035
-if ($Env:CHOCOLATEY_VERSION -lt "0.10.4") {
-    # Let's sleep. Still failing with only 3 secs. 5 seems to work.
-    Start-Sleep -s 5
-}
+# Let's sleep. Still failing with only 3 secs. 5 seems to work.
+Start-Sleep -s 5
 
 # The uninstaller changes the PATH, apply these changes in the current PowerShell
 # session (limited to this script).
