@@ -1,4 +1,4 @@
-$packageName = 'openvpn'
+﻿$packageName = 'openvpn'
 # By default: C:\ProgramData\chocolatey\lib\openvpn\tools
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
@@ -8,8 +8,8 @@ $fileType = 'exe'
 # https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L107
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
-$checksum = '83ac5500f9fc15c65bf8f2ca90f04c3043b7431fef763408c29746a7385b5a3ea313e11cf4fd274559c8cd9ba811cc6df49d2a84b94330f738fa31724edca4ba'
-$checksumSig = '8a250f7d77b96de64aa113bb9468f3d26d41f231ab3cb894bfacb8c809631db4227e8c5662d84512ae4fad2facf57ed8cb3e2ac3e6ed719f4d5b195fe43fa225'
+$checksum = '78DE440BBEF035CAD396012E175E3FB8DE4F303DA0DBFF4A0C071A7AE6B002610527E42601EE6C211A26D9CC6536AAF694FCDF2F9154D1DB14B6F8B2D6F36DE0'
+$checksumSig = 'C77BA4E00F9904D54F1A62ECB91E3669A584100FE9028C23D8594128E3B5BDB4C9B438BC78095C34557C9CD92F55AE6B0C3FDA22F6A604F3BF6A4B0E4C09B5CB'
 $certFilename = "$toolsDir\openvpn.cer"
 $pgpKeyFileName = "$toolsDir\samuli_public_key.asc"
 $packageFileName = "$toolsDir\$($packageName)Install.$fileType"
