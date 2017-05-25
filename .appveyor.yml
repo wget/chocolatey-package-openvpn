@@ -2,10 +2,6 @@ version: '{build}'
 image: WMF 5
 init:
 - ps: >-
-    # Please uncomment to have a RDP session, particularly useful to debug
-    # src.: https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
-    #iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-    #
     # The $env:PATH is way too long; try to reduce it a bit.
     # src.: https://gist.github.com/wget/a102f89c301014836aaa49a98dd06ee2
 
@@ -24,24 +20,40 @@ init:
     [Environment]::SetEnvironmentVariable("INCLUDE", $env:INCLUDE, [System.EnvironmentVariableTarget]::User)
 
     Write-Host "This is the new path: $env:path"
+
+    Write-Host "Installing AU..."
+
+    choco install au --yes
 clone_script:
 - ps: >-
     # The git process needs to be used with Start-Process when PS is used,
     # otherwise the parsing of the arguments will fail.
 
+    Write-Host "Current working directory: $(Get-Location)"
+
     Start-Process -FilePath "git" -ArgumentList "config --global url.https://github.com/wget/chocolatey.insteadOf git@github.com:wget/chocolatey" -NoNewWindow -Wait -Passthru
 
-    Start-Process -FilePath "git" -ArgumentList "clone --recursive git@github.com:wget/chocolatey-package-openvpn.git" -NoNewWindow -Wait -Passthru
+    Start-Process -FilePath "git" -ArgumentList "clone --recursive git@github.com:wget/chocolatey-package-openvpn.git openvpn" -NoNewWindow -Wait -Passthru
 nuget:
   disable_publish_on_pr: true
 build_script:
 - ps: >-
-    cd chocolatey-package-openvpn
+    Write-Host "Current working directory: $(Get-Location)"
 
-    choco pack .\openvpn.nuspec
+    Write-Host "In the current working directory: $(Get-ChildItem)"
+
+    Write-Host "Changing directory..."
+
+    cd openvpn
+
+    Write-Host "Current working directory: $(Get-Location)"
+
+    Write-Host "In the current working directory: $(Get-ChildItem)"
+
+    Update-Package
 test: off
 artifacts:
-- path: chocolatey-package-openvpn\*.nupkg
+- path: openvpn\*.nupkg
 deploy: off
 notifications:
 - provider: Email
@@ -52,6 +64,15 @@ notifications:
   on_build_status_changed: true
 on_success:
 - ps: >-
+    Write-Host "Current working directory: $(Get-Location)"
+
+    Write-Host "In the current working directory: $(Get-ChildItem)"
+
     choco install openvpn -fdv -source "'.;https://chocolatey.org/api/v2/'" --yes
 
     choco uninstall openvpn -y -dv
+
+# Please uncomment to have a RDP session, particularly useful to debug
+# src.: https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
