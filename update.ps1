@@ -7,8 +7,8 @@ $urlSig = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-l
 function global:au_SearchReplace {
    @{
         ".\tools\chocolateyInstall.ps1" = @{
-            "(^[$]checksum\s*=\s*)('.*')"    = "`$1'$($Latest.checksum)'"
-            "(^[$]checksumSig\s*=\s*)('.*')" = "`$1'$($Latest.checksumSig)'"
+            "(^[$]packageChecksum\s*=\s*)('.*')"    = "`$1'$($Latest.packageChecksum)'"
+            "(^[$]sigChecksum\s*=\s*)('.*')" = "`$1'$($Latest.sigChecksum)'"
         }
     }
 }
@@ -26,12 +26,12 @@ function au_BeforeUpdate {
     $filePath = "$toolsPath/openvpnInstall.exe"
     Write-Host "Downloading installer to '$filePath'..."
     $client.DownloadFile($url, $filePath)
-    $Latest.checksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
+    $Latest.packageChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
 
     $filePath = "$toolsPath/openvpnInstall.exe.asc"
     Write-Host "Downloading installer signature to '$filePath'..."
     $client.DownloadFile($urlSig, $filePath)
-    $Latest.checksumSig = Get-FileHash $filePath -Algorithm sha512 | % Hash
+    $Latest.sigChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
 }
 
 function global:au_GetLatest {

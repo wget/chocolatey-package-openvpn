@@ -8,12 +8,16 @@ $fileType = 'exe'
 # https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L107
 $silentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
-$checksum = '78DE440BBEF035CAD396012E175E3FB8DE4F303DA0DBFF4A0C071A7AE6B002610527E42601EE6C211A26D9CC6536AAF694FCDF2F9154D1DB14B6F8B2D6F36DE0'
-$checksumSig = 'C77BA4E00F9904D54F1A62ECB91E3669A584100FE9028C23D8594128E3B5BDB4C9B438BC78095C34557C9CD92F55AE6B0C3FDA22F6A604F3BF6A4B0E4C09B5CB'
-$certFilename = "$toolsDir\openvpn.cer"
-$pgpKeyFileName = "$toolsDir\samuli_public_key.asc"
+
 $packageFileName = "$toolsDir\$($packageName)Install.$fileType"
 $sigFileName = "$toolsDir\$($packageName)Install.$fileType.asc"
+$pgpKeyFileName = "$toolsDir\openvpn_public_key.asc"
+$certFileName = "$toolsDir\openvpn.cer"
+
+$packageChecksum = 'A0DA5281A38C2445AF1C89F3153BE6CED9D419B2E2C94C0326CD0821C6DAD682808ADA2BBA5643754C5C9971B84940F4020163AF4053D83FF13E605748CB13F0'
+$sigChecksum = 'CF44F472D7F12F35C20F1E8197170D5DE79CDAE03AB5C37E77D664983CEF78D66372C4B1408B537E79B2218170F7589EE41BF07BD16C0D7015C26B5C05EF95D3'
+$pgpKeyChecksum = '7205EB2A23DF08313255FA4A75CF1E8D00F8777BEDEC48FE3B31FFD9EC297AB683193DA585AF3FA9E35D9F17390A3E2C0BBD30AAB0524F44F0EFC69EDE02A6F3'
+$certChecksum = '8F53ADB36F1C61C50E11B8BDBEF8D0FFB9B26665A69D81246551A0B455E72EC0B26A34DC9B65CB3750BAF5D8A6D19896C3B4A31B578B15AB7086377955509FAD'
 
 # Load custom functions
 . "$toolsDir\utils\utils.ps1"
@@ -22,8 +26,20 @@ $sigFileName = "$toolsDir\$($packageName)Install.$fileType.asc"
 Update-SessionEnvironment
 
 Get-ChecksumValid `
+    -File "$packageFileName" `
+    -Checksum "$packageChecksum" `
+    -ChecksumType 'sha512'
+Get-ChecksumValid `
     -File "$sigFileName" `
-    -Checksum "$checksumSig" `
+    -Checksum "$sigChecksum" `
+    -ChecksumType 'sha512'
+Get-ChecksumValid `
+    -File "$pgpKeyFileName" `
+    -Checksum "$pgpKeyChecksum" `
+    -ChecksumType 'sha512'
+Get-ChecksumValid `
+    -File "$certFileName" `
+    -Checksum "$certChecksum" `
     -ChecksumType 'sha512'
 
 # The GPG signature needs to have the same filename as the file checked but
@@ -54,11 +70,6 @@ try {
 } catch {
     Write-Host "No previous OpenVPN service detected."
 }
-
-Get-ChecksumValid `
-    -File "$packageFileName" `
-    -Checksum "$checksum" `
-    -ChecksumType 'sha512'
 
 Install-ChocolateyInstallPackage `
     -PackageName $packageName `
