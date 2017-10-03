@@ -1,0 +1,11 @@
+Publishing this package on the chocolatey repository is an initiative
+encouraged by the official OpenVPN authors. In the future, they even
+intend to publish a daily build of OpenVPN and make this package an
+official channel to distribute OpenVPN updates.
+
+These points have been discussed in this ticket:
+https://github.com/wget/chocolatey-package-openvpn/issues/2
+
+The binaries included in this package are identical to the ones available
+on the OpenVPN community website:
+https://openvpn.net/index.php/open-source/downloads.html
