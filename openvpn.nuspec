@@ -57,6 +57,6 @@
         <packageSourceUrl>https://github.com/wget/chocolatey_openvpn</packageSourceUrl>
     </metadata>
     <files>
-        <file src="tools\**" target="tools" />
+        <file src="tools\**" target="tools" exclude="**\utils\.git;**\utils\README.*" />
     </files>
 </package>
