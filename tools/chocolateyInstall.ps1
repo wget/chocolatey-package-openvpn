@@ -12,7 +12,7 @@ $validExitCodes = @(0)
 $packageFileName = "$toolsDir\$($packageName)Install.$fileType"
 $sigFileName = "$toolsDir\$($packageName)Install.$fileType.asc"
 $pgpKeyFileName = "$toolsDir\openvpn_public_key.asc"
-$certFileName = "$toolsDir\openvpn.cer"
+$certFileName = "$toolsDir\openvpn_trusted_publisher.cer"
 
 $packageChecksum = '613941791DA88123F10D0CAE9CF3AABA1B82FF4332E2E2A21DA1B0D1BD1FCBBDB9AC77CE9354369DF9640BBFDCD82DE0E1AC27E7A9B9E7964C9A53791ABFDD97'
 $sigChecksum = '1E6402E416F2989854B1DE6D61AD64A0EB73FE893D3FD3A9B08E6C78BD489D29394B07E560C44E2D6732E9329E35BAA0DFFD570F5BA1852420E69C469D5B966D'

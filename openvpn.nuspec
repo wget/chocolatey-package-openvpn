@@ -29,7 +29,7 @@ This repository contains the sources of the [package OpenVPN](https://chocolatey
                  If we do not specify one, the chocolatey web validator will
                  report a warning to be fixed in order to respect guidelines. -->
             <dependency id="chocolatey" version="0.9.10" />
-            <dependency id="gpg4win-vanilla" version="2.3.3" />
+            <dependency id="gpg4win" version="3.1.2" />
         </dependencies>
         <releaseNotes>https://openvpn.net/index.php/open-source/documentation/release-notes.html</releaseNotes>
         <!-- Specific to Chocolatey -->
