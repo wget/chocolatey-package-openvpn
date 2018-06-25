@@ -1,8 +1,8 @@
 import-module au
 
 $releases = "https://build.openvpn.net/downloads/releases/"
-$url = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe'
-$urlSig = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe.asc'
+$url = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.5-I601.exe'
+$urlSig = 'https://build.openvpn.net/downloads/releases/openvpn-install-2.4.5-I601.exe.asc'
 
 function global:au_SearchReplace {
    @{
@@ -41,7 +41,7 @@ function global:au_GetLatest {
     $version = $matches[0]
 
     @{
-        version = $version
+        version = "2.4.5"
     }
 }
 

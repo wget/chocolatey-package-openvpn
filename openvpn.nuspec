@@ -6,33 +6,15 @@
     <metadata>
         <id>openvpn</id>
         <title>OpenVPN</title>
-        <version>2.4.4</version>
+        <version>2.4.5</version>
         <authors>OpenVPN Technologies, Inc</authors>
         <owners>wget, Okhoshi, mattock</owners>
         <summary>OpenVPN is a multiplatform and open source VPN server and client solution</summary>
-        <description>OpenVPN is a full-featured open source SSL VPN solution that accommodates a wide range of configurations, including remote access, site-to-site VPNs, Wi-Fi security, and enterprise-scale remote access solutions with load balancing, failover, and fine-grained access-controls. Starting with the fundamental premise that complexity is the enemy of security, OpenVPN offers a cost-effective, lightweight alternative to other VPN technologies that is well-targeted for the SME and enterprise markets.
+        <description><![CDATA[
+This repository contains the sources of the [package OpenVPN](https://chocolatey.org/packages/openvpn/) for [Chocolatey, the package manager for Windows](https://chocolatey.org/).
 
-        This package will be installed with the following options:
-        * `/SELECT_OPENVPN=1`             : Install OpenVPN user-space components, including openvpn.exe
-        * `/SELECT_SERVICE=1`             : Install the OpenVPN service wrappers
-        * `/SELECT_TAP=1`                 : Install/upgrade the TAP virtual device driver
-        * `/SELECT_OPENVPNGUI=1`          : Install OpenVPN GUI by Mathias Sundman
-        * `/SELECT_ASSOCIATIONS=1`        : Register OpenVPN config file association (*.ovpn)
-        * `/SELECT_OPENSSL_UTILITIES=1`   : Install the OpenSSL Utilities (used for generating public/private key pairs)
-        * `/SELECT_EASYRSA=1`             : Install OpenVPN RSA scripts for X509 certificate management
-        * `/SELECT_PATH=1`                : Add OpenVPN executable directory to the current user's PATH
-        * `/SELECT_SHORTCUTS=1`           : Add OpenVPN shortcuts to the current user's Start Menu
-        * `/SELECT_LAUNCH=1`              : Launch OpenVPN GUI on user logon
-        * `/SELECT_OPENSSLDLLS=1`         : Install OpenSSL DLLs locally (may be omitted if DLLs are already installed globally)
-        * `/SELECT_LZODLLS=1`             : Install LZO DLLs locally (may be omitted if DLLs are already installed globally)
-        * `/SELECT_PKCS11DLLS=1`          : Install PKCS#11 helper DLLs locally (may be omitted if DLLs are already installed globally)
-
-        The only difference with the default package configuration is the EASYRSA option enabled while the default install disables it.
-
-        In order to be started automatically, your configuration still needs to reside in C:\Program Files\OpenVPN\config\.
-        By design, OpenVPN-GUI does not show connections started automatically; it only shows connections started by the current user.
-        For more info, read: https://github.com/OpenVPN/openvpn-gui/blob/master/README.rst#adding-an-openvpn-configuration-file
-        </description>
+[For more information, please refer to the instructions available in the parent repository](https://github.com/wget/chocolatey-packages).
+]]></description>
         <projectUrl>https://openvpn.net/index.php/open-source/</projectUrl>
         <tags>openvpn community tunnel ssl admin</tags>
         <copyright>OpenVPN Technologies, Inc</copyright>
