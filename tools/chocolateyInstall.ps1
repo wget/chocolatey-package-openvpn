@@ -38,26 +38,36 @@ $newTapSigChecksum = ''
 # If GPG has been just added, need to refresh to access to it from this session
 Update-SessionEnvironment
 
+Write-Host "Checking OpenVPN installer hash..."
 Get-ChecksumValid `
     -File "$packageFileName" `
     -Checksum "$packageChecksum" `
-    -ChecksumType 'sha512' -InformationAction SilentlyContinue
+    -ChecksumType 'sha512'
+Write-Host "Checking OpenVPN installer signature hash..."
 Get-ChecksumValid `
     -File "$sigFileName" `
     -Checksum "$sigChecksum" `
-    -ChecksumType 'sha512' -InformationAction SilentlyContinue
+    -ChecksumType 'sha512'
+Write-Host "Checking old OpenVPN Inc PGP public key hash..."
+Get-ChecksumValid `
+    -File "$pgpKeyFileName" `
+    -Checksum "$oldPgpKeyChecksum" `
+    -ChecksumType 'sha512'
+Write-Host "Checking new OpenVPN Inc PGP public key hash..."
 Get-ChecksumValid `
     -File "$pgpKeyFileName" `
     -Checksum "$pgpKeyChecksum" `
-    -ChecksumType 'sha512' -InformationAction SilentlyContinue
+    -ChecksumType 'sha512'
+Write-Host "Checking old OpenVPN Inc Trusted Publisher certificate hash..."
 Get-ChecksumValid `
     -File "$oldCertFileName" `
     -Checksum "$oldCertChecksum" `
-    -ChecksumType 'sha512' -InformationAction SilentlyContinue
+    -ChecksumType 'sha512'
+Write-Host "Checking new OpenVPN Inc Trusted Publisher certificate hash..."
 Get-ChecksumValid `
     -File "$newCertFileName" `
     -Checksum "$newCertChecksum" `
-    -ChecksumType 'sha512' -InformationAction SilentlyContinue
+    -ChecksumType 'sha512'
 
 # The GPG signature needs to have the same filename as the file checked but
 # with the .asc suffix, otherwise gpg reports it cannot verify the file with
