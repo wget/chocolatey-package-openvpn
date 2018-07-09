@@ -46,7 +46,7 @@ on_success:
 - ps: |
     Write-Host "Current working directory: $(Get-Location)"
     Write-Host "In the current working directory: $(Get-ChildItem)"
-    choco install openvpn -fdvy -source "'$env:APPVEYOR_BUILD_FOLDER;https://chocolatey.org/api/v2/'"
+    choco install openvpn -fdvy -source "'.;https://chocolatey.org/api/v2/'"
     choco uninstall openvpn -dvy
 
 # Please uncomment to have a RDP session, particularly useful to debug
