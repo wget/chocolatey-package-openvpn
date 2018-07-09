@@ -4,11 +4,20 @@ $releases = "https://build.openvpn.net/downloads/releases/"
 $url = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe'
 $urlSig = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe.asc'
 
+$oldTapInstallerUrl = 'http://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe'
+$oldTapInstallerUrlSig = 'http://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe.asc'
+$newTapInstallerUrl = 'http://build.openvpn.net/downloads/releases/tap-windows-9.22.1-I601.exe'
+$newTapInstallerUrlSig = 'http://build.openvpn.net/downloads/releases/tap-windows-9.22.1-I601.exe.asc'
+
 function global:au_SearchReplace {
    @{
         ".\tools\chocolateyInstall.ps1" = @{
             "(^[$]packageChecksum\s*=\s*)('.*')"    = "`$1'$($Latest.packageChecksum)'"
             "(^[$]sigChecksum\s*=\s*)('.*')" = "`$1'$($Latest.sigChecksum)'"
+            "(^[$]oldTapChecksum\s*=\s*)('.*')" = "`$1'$($Latest.oldTapChecksum)'"
+            "(^[$]oldTapSigChecksum\s*=\s*)('.*')" = "`$1'$($Latest.oldTapSigChecksum)'"
+            "(^[$]newTapChecksum\s*=\s*)('.*')" = "`$1'$($Latest.newTapChecksum)'"
+            "(^[$]newTapSigChecksum\s*=\s*)('.*')" = "`$1'$($Latest.newTapSigChecksum)'"
         }
     }
 }
@@ -32,6 +41,26 @@ function au_BeforeUpdate {
     Write-Host "Downloading installer signature to '$filePath'..."
     $client.DownloadFile($urlSig, $filePath)
     $Latest.sigChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
+
+    $filePath = "$toolsPath/oldTapInstaller.exe"
+    Write-Host "Downloading old TAP installer to '$filePath'..."
+    $client.DownloadFile($oldTapInstallerUrl, $filePath)
+    $Latest.oldTapChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
+
+    $filePath = "$toolsPath/oldTapInstaller.exe.asc"
+    Write-Host "Downloading old TAP installer signature to '$filePath'..."
+    $client.DownloadFile($oldTapInstallerUrlSig, $filePath)
+    $Latest.oldTapSigChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
+
+    $filePath = "$toolsPath/newTapInstaller.exe"
+    Write-Host "Downloading new TAP installer to '$filePath'..."
+    $client.DownloadFile($newTapInstallerUrl, $filePath)
+    $Latest.newTapChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
+
+    $filePath = "$toolsPath/newTapInstaller.exe.asc"
+    Write-Host "Downloading new TAP installer signature to '$filePath'..."
+    $client.DownloadFile($newTapInstallerUrlSig, $filePath)
+    $Latest.newTapSigChecksum = Get-FileHash $filePath -Algorithm sha512 | % Hash
 }
 
 function global:au_GetLatest {

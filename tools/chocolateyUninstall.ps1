@@ -8,27 +8,42 @@ $validExitCodes = @(0)
 # Chocolatey Auto Uninstaller feature. We will need to do manually what the
 # PowerShell command does i.e. looking for the right path in the registry
 # manually.
-
-
 [array]$key = Get-UninstallRegistryKey -SoftwareName "OpenVPN*"
-
 if ($key.Count -eq 1) {
-    $key | % {
-        $file = $key.UninstallString
+    $file = $key.UninstallString
 
-        Write-Host "Removing OpenVPN... The OpenVPN service will be automatically stopped and removed."
-        Uninstall-ChocolateyPackage `
-            -PackageName "$packageName" `
-            -FileType "$fileType" `
-            -SilentArgs "$silentArgs" `
-            -ValidExitCodes "$validExitCodes" `
-            -File "$file"
-    }
+    Write-Host "Removing OpenVPN... The OpenVPN service will be automatically stopped and removed."
+    Uninstall-ChocolateyPackage `
+        -PackageName "OpenVPN" `
+        -FileType "$fileType" `
+        -SilentArgs "$silentArgs" `
+        -ValidExitCodes "$validExitCodes" `
+        -File "$file" | Out-Null
 } elseif ($key.Count -eq 0) {
     Write-Warning "$packageName has already been uninstalled by other means."
 } elseif ($key.Count -gt 1) {
     Write-Warning "$key.Count matches found!"
     Write-Warning "To prevent accidental data loss, no programs will be uninstalled."
+    Write-Warning "Please alert package maintainer the following keys were matched:"
+    $key | % {Write-Warning "- $_.DisplayName"}
+}
+
+[array]$key = Get-UninstallRegistryKey -SoftwareName "TAP-Windows*"
+if ($key.Count -eq 1) {
+    $file = $key.UninstallString
+
+    Write-Host "Removing the OpenVPN TAP driver..."
+    Uninstall-ChocolateyPackage `
+        -PackageName "OpenVPN TAP driver" `
+        -FileType "$fileType" `
+        -SilentArgs "$silentArgs" `
+        -ValidExitCodes "$validExitCodes" `
+        -File "$file" | Out-Null
+} elseif ($key.Count -eq 0) {
+    Write-Warning "The OpenVPN TAP driver has already been uninstalled by other means."
+} elseif ($key.Count -gt 1) {
+    Write-Warning "$key.Count matches found!"
+    Write-Warning "To prevent accidental data loss, the OpenVPN TAP driver will not be uninstalled."
     Write-Warning "Please alert package maintainer the following keys were matched:"
     $key | % {Write-Warning "- $_.DisplayName"}
 }
