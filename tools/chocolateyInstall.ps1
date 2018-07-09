@@ -50,7 +50,7 @@ Get-ChecksumValid `
     -ChecksumType 'sha512'
 Write-Host "Checking old OpenVPN Inc PGP public key hash..."
 Get-ChecksumValid `
-    -File "$pgpKeyFileName" `
+    -File "$oldPgpKeyFileName" `
     -Checksum "$oldPgpKeyChecksum" `
     -ChecksumType 'sha512'
 Write-Host "Checking new OpenVPN Inc PGP public key hash..."
