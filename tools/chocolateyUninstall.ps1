@@ -12,7 +12,6 @@ $validExitCodes = @(0)
 if ($key.Count -eq 1) {
     $file = $key.UninstallString
 
-    Write-Host "Removing OpenVPN... The OpenVPN service will be automatically stopped and removed."
     Uninstall-ChocolateyPackage `
         -PackageName "OpenVPN" `
         -FileType "$fileType" `
@@ -32,7 +31,6 @@ if ($key.Count -eq 1) {
 if ($key.Count -eq 1) {
     $file = $key.UninstallString
 
-    Write-Host "Removing the OpenVPN TAP driver..."
     Uninstall-ChocolateyPackage `
         -PackageName "OpenVPN TAP driver" `
         -FileType "$fileType" `
