@@ -15,10 +15,10 @@ $openvpnInstallerHash = ''
 $openvpnInstallerPgpSignature = "$toolsDir\openvpn_installer.exe.asc"
 $openvpnInstallerPgpSignatureHash = ''
 
-$pgpPublicKeyNew = "$toolsDir\openvpn_public_key_new.asc"
-$pgpPublicKeyNewHash = '6c62419a0365e54cb51d93b1a30a4b78718191b84051dd22136c966134872d913d288a043db99f8a9ce75f08f6a5d0c7190072dc0136fc407580a8ebfb6831b3'
 $pgpPublicKeyOld = "$toolsDir\openvpn_public_key_old.asc"
-$pgpPublicKeyOldHash = 'ec22632f508e12a6f771bcf3ca2570d31b7eed21360e1af213ba065d9797eb853d72a40eaea555fc0115e6083cb3d7d576fb8399b8fc1b7a5975d741cb9581f1'
+$pgpPublicKeyOldHash = 'cd4b8eacf5667d335aa89f9860bbb3debad53f877d03609dfcdf578edc27f62131dfeaf678900a2ac0a753d9883046817cf6be5979117ab261d7ce5fc1dec9e0'
+$pgpPublicKeyNew = "$toolsDir\openvpn_public_key_new.asc"
+$pgpPublicKeyNewHash = '3ed149e5b7bf35103ba65bd019f4285d28e1b15a013cb61fcbad5c03a643cbe9aa1501072b284ef7f809cec5b4b70fcde34447a5bf033e250bea65bd5f2f7d71'
 
 $trustedPublisherCertificateOld = "$toolsDir\openvpn_trusted_publisher_old.cer"
 $trustedPublisherCertificateOldHash = '4d04bc2956171ae42a7baba030ca6ddd7a713e3752874c947b9745d58d12758a56bc47880e6f9d9b5db93558d6de17473018882c30f3bdf03ada46aae9d37d8a'
