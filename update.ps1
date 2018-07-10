@@ -1,4 +1,4 @@
-import-module au
+﻿import-module au
 
 $releases = "https://build.openvpn.net/downloads/releases/"
 $url = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe'

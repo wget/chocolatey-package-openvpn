@@ -1,4 +1,4 @@
-$packageName = 'openvpn'
+﻿$packageName = 'openvpn'
 $fileType = 'exe'
 $silentArgs = '/S'
 $validExitCodes = @(0)
