@@ -23,7 +23,7 @@ This repository contains the sources of the [package OpenVPN](https://chocolatey
         <!-- Important note about https://cdn.rawgit.com: Files are cached
              permanently after the first request. Use commit URLs when updating
              the icon. -->
-        <iconUrl>https://cdn.rawgit.com/wget/chocolatey_openvpn/master/icon.png</iconUrl>
+        <iconUrl>https://cdn.rawgit.com/wget/chocolatey-package-openvpn/master/icon.png</iconUrl>
         <dependencies>
             <!-- The id is the lowest version required tomake the package work.
                  If we do not specify one, the chocolatey web validator will
@@ -36,7 +36,7 @@ This repository contains the sources of the [package OpenVPN](https://chocolatey
         <projectSourceUrl>https://github.com/OpenVPN/openvpn</projectSourceUrl>
         <docsUrl>https://community.openvpn.net/openvpn/wiki</docsUrl>
         <bugTrackerUrl>https://community.openvpn.net/openvpn/report/1</bugTrackerUrl>
-        <packageSourceUrl>https://github.com/wget/chocolatey_openvpn</packageSourceUrl>
+        <packageSourceUrl>https://github.com/wget/chocolatey-package-openvpn</packageSourceUrl>
     </metadata>
     <files>
         <file src="tools\**" target="tools" exclude="**\utils\.git;**\utils\README.*" />
