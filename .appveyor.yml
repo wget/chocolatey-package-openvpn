@@ -30,7 +30,7 @@ build_script:
     cd openvpn
     Write-Host "Current working directory: $(Get-Location)"
     Write-Host "In the current working directory: $(Get-ChildItem)"
-    Update-Package -NoCheckChocoVersion=$true
+    $AU_force=$true; Update-Package
 test: off
 artifacts:
 - path: openvpn\*.nupkg
