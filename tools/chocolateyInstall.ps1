@@ -11,9 +11,9 @@ $tapDriverInstallerSilentArgs = '/S /SELECT_EASYRSA=1'
 $validExitCodes = @(0)
 
 $openvpnInstaller = "$toolsDir\openvpn_installer.exe"
-$openvpnInstallerHash = ''
+$openvpnInstallerHash = '89E02F55CD34238AAC7CA6983FF54AD1B4CF23101DE82BE08F4C960DA7A41514663FD44B9AB5386815A2A2C97457DF595A369F552F1D8F7837F2D3F9ED0D7268'
 $openvpnInstallerPgpSignature = "$toolsDir\openvpn_installer.exe.asc"
-$openvpnInstallerPgpSignatureHash = ''
+$openvpnInstallerPgpSignatureHash = '7BA86B05D9A9AAF82A4F3F9D7D612E12107FEE00803484D32217A89EAF94B5A865468C0279B4709B09AF1A4B6F79C5303E4E32F7BA7E141187137A7D79F59D12'
 
 $pgpPublicKeyOld = "$toolsDir\openvpn_public_key_old.asc"
 $pgpPublicKeyOldHash = 'cd4b8eacf5667d335aa89f9860bbb3debad53f877d03609dfcdf578edc27f62131dfeaf678900a2ac0a753d9883046817cf6be5979117ab261d7ce5fc1dec9e0'
@@ -26,11 +26,11 @@ $trustedPublisherCertificateNew = "$toolsDir\openvpn_trusted_publisher_new.cer"
 $trustedPublisherCertificateNewHash = 'e4bea4b8a1af6937565685bd83058ec32a138c193520f616b1c9f72dffa5fb2fbe9dc665baf3d0ff96b1479a82b21f59dc8df8f29a9610e83ae62c91ce3b83ea'
 
 $tapDriverInstallerOld = "$toolsDir\tap_driver_installer_old.exe"
-$tapDriverInstallerOldHash = ''
-$tapDriverInstallerOldPgpSignatureHash = ''
+$tapDriverInstallerOldHash = '514F0DD1B7D8C4AAD5CC06882A96BE2096E57EB4228DF1D78F2BCC60003AF8EBC057CCE5EEDDA9B8A2DC851A52895C0A4B07556B4535271767817D9EA45E0713'
+$tapDriverInstallerOldPgpSignatureHash = '76FC4AB3854A13032FEE735460CCCA6B03DDA570E81913BD576D6DF952654B811CA1D5FC7674D7DBF308E5927780D608C00FA1ADD709E6BC35644D6B699ADCD2'
 $tapDriverInstallerNew = "$toolsDir\tap_driver_installer_new.exe"
-$tapDriverInstallerNewHash = ''
-$tapDriverInstallerNewPgpSignatureHash = ''
+$tapDriverInstallerNewHash = '13D8E365ED985FC3C510287D977E33205F41B3569B888E745157ECC774DA20AF4D58A98CDC582646A9BB7FD84AAD2A55E9AAD895F12A9A2E125E7A0C88B1726D'
+$tapDriverInstallerNewPgpSignatureHash = 'C16CD8B470A92BBC89226DD1B0720E994022F940C1D81F26E2BB27B39B840A21373A3F2848AFD55031DCF1610D0D56C91791AEBD74BE3638B1FF9DF94A1998C7'
 
 # Load custom functions
 . "$toolsDir\utils\utils.ps1"
@@ -120,10 +120,14 @@ Install-ChocolateyInstallPackage `
 # fall back to previously working installer when secure boot is enabled or
 # when on Windows Server (which has stricter signing policies compared to
 # standard Windows editions).
-$Assem = (
-	"System",
-	"System.Runtime.InteropServices")
-$Source = @"
+# In order to avoid infecting the default AppDomain with our class OS, we are
+# creating a sub process
+# src.: https://stackoverflow.com/a/3374673/3514658
+$job = Start-Job -ScriptBlock {
+    $Assem = (
+        "System",
+        "System.Runtime.InteropServices")
+    $Source = @"
 using System;
 using System.Runtime.InteropServices;
 
@@ -138,8 +142,11 @@ public class OS {
     private static extern bool IsOS(int os);
 }
 "@
-Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp
-$isWindowsServer = [OS]::IsWindowsServer()
+    Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp
+    [OS]::IsWindowsServer()
+}
+Wait-Job $job | Out-Null
+$isWindowsServer = Receive-Job $job
 
 $isSecureBootEnabled = $false
 try {
