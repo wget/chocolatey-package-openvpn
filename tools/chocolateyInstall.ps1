@@ -2,12 +2,46 @@
 # By default: C:\ProgramData\chocolatey\lib\openvpn\tools
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
+
 # For a list of all silent arguments used
 # https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L551
 # For their description
 # https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L107
-$openvpnInstallerSilentArgs = '/S /SELECT_EASYRSA=1 /SELECT_TAP=0'
-$tapDriverInstallerSilentArgs = '/S /SELECT_EASYRSA=1'
+$packageParams = Get-PackageParameters
+if (!$packageParams['SELECT_SHORTCUTS']) { $packageParams['SELECT_SHORTCUTS'] = '1' }
+if (!$packageParams['SELECT_OPENVPN']) { $packageParams['SELECT_OPENVPN'] = '1' }
+if (!$packageParams['SELECT_SERVICE']) { $packageParams['SELECT_SERVICE'] = '1' }
+if ($packageParams['SELECT_SERVICE'] -eq '1') {
+    $serviceWanted = $true
+} else {
+    $serviceWanted = $false
+}
+if (!$packageParams['SELECT_TAP']) { $packageParams['SELECT_TAP'] = '1' }
+if ($packageParams['SELECT_TAP'] -eq '1') {
+    $tapDriverWanted = $true
+    # We don't want the installer to install the tap driver for us. We want to
+    # do it by ourselves. The tap driver coming with the installer is buggy.
+    # We need a specific version of that TAP driver depending on the Windows
+    # version.
+    $packageParams['SELECT_TAP'] = '0'
+} else {
+    $tapDriverWanted = $false
+}
+if (!$packageParams['SELECT_OPENVPNGUI']) { $packageParams['SELECT_OPENVPNGUI'] = '1' }
+if (!$packageParams['SELECT_ASSOCIATIONS']) { $packageParams['SELECT_ASSOCIATIONS'] = '1' }
+if (!$packageParams['SELECT_OPENSSL_UTILITIES']) { $packageParams['SELECT_OPENSSL_UTILITIES'] = '1' }
+# Contrary to the default installer we are installing easyrsa by default
+if (!$packageParams['SELECT_EASYRSA']) { $packageParams['SELECT_EASYRSA'] = '1' }
+if (!$packageParams['SELECT_PATH']) { $packageParams['SELECT_PATH'] = '1' }
+if (!$packageParams['SELECT_LAUNCH']) { $packageParams['SELECT_LAUNCH'] = '1' }
+if (!$packageParams['SELECT_OPENSSLDLLS']) { $packageParams['SELECT_OPENSSLDLLS'] = '1' }
+if (!$packageParams['SELECT_LZODLLS']) { $packageParams['SELECT_LZODLLS'] = '1' }
+if (!$packageParams['SELECT_PKCS11DLLS']) { $packageParams['SELECT_PKCS11DLLS'] = '1' }
+$openvpnInstallerSilentArgs = '/S '
+# Entries will be added to the string in random order since this is a dictionary.
+foreach ($i in $packageParams.Keys) { $openvpnInstallerSilentArgs += "/$i=$($packageParams[$i]) " }
+$tapDriverInstallerSilentArgs = "/S /SELECT_EASYRSA=$($packageParams['SELECT_EASYRSA'])"
+
 $validExitCodes = @(0)
 
 $openvpnInstaller = "$toolsDir\openvpn_installer.exe"
@@ -78,14 +112,16 @@ CheckPGPSignature `
     -pgpKey "$pgpPublicKeyNew" `
     -signatureFile "$openvpnInstallerPgpSignature" `
     -file "$openvpnInstaller"
-CheckPGPSignature `
-    -pgpKey "$pgpPublicKeyOld" `
-    -signatureFile "$tapDriverInstallerOld.asc" `
-    -file "$tapDriverInstallerOld"
-CheckPGPSignature `
-    -pgpKey "$pgpPublicKeyNew" `
-    -signatureFile "$tapDriverInstallerNew.asc" `
-    -file "$tapDriverInstallerNew"
+if ($tapDriverWanted) {
+    CheckPGPSignature `
+        -pgpKey "$pgpPublicKeyOld" `
+        -signatureFile "$tapDriverInstallerOld.asc" `
+        -file "$tapDriverInstallerOld"
+    CheckPGPSignature `
+        -pgpKey "$pgpPublicKeyNew" `
+        -signatureFile "$tapDriverInstallerNew.asc" `
+        -file "$tapDriverInstallerNew"
+}
 
 # Due to this bug https://github.com/OpenVPN/tap-windows6/issues/63, the
 # following step is not working any more because the OpenVPN installer
@@ -93,20 +129,22 @@ CheckPGPSignature `
 #Write-Host "Adding OpenVPN to the Trusted Publishers (needed to have a silent install of the TAP driver)..."
 #AddTrustedPublisherCertificate -file "$certFileName"
 
-Write-Host "Getting the state of the current OpenVPN service (if any)..."
-# Needed to reset the state of the Interactive service if upgrading from a
-# branch 2.4 and onwards or reinstalling a build from the branch 2.4
-try {
-    $previousInteractiveService = GetServiceProperties "OpenVPNServiceInteractive"
-} catch {
-    Write-Host "No previous OpenVPN interactive service detected."
-}
-# Even if 2.4.1 fixes reset of services. This is still needed for all cases 2.3
-# to 2.4 or 2.4 to 2.4.x and onwards.
-try {
-    $previousService = GetServiceProperties "OpenVpnService"
-} catch {
-    Write-Host "No previous OpenVPN service detected."
+if ($serviceWanted) {
+    Write-Host "Getting the state of the current OpenVPN service (if any)..."
+    # Needed to reset the state of the Interactive service if upgrading from a
+    # branch 2.4 and onwards or reinstalling a build from the branch 2.4
+    try {
+        $previousInteractiveService = GetServiceProperties "OpenVPNServiceInteractive"
+    } catch {
+        Write-Host "No previous OpenVPN interactive service detected."
+    }
+    # Even if 2.4.1 fixes reset of services. This is still needed for all cases 2.3
+    # to 2.4 or 2.4 to 2.4.x and onwards.
+    try {
+        $previousService = GetServiceProperties "OpenVpnService"
+    } catch {
+        Write-Host "No previous OpenVPN service detected."
+    }
 }
 
 Install-ChocolateyInstallPackage `
@@ -115,19 +153,20 @@ Install-ChocolateyInstallPackage `
     -SilentArgs $openvpnInstallerSilentArgs `
     -File $openvpnInstaller `
     -ValidExitCodes $validExitCodes
-    
-# Install latest TAP which contains security fixes when possible, otherwise
-# fall back to previously working installer when secure boot is enabled or
-# when on Windows Server (which has stricter signing policies compared to
-# standard Windows editions).
-# In order to avoid infecting the default AppDomain with our class OS, we are
-# creating a sub process
-# src.: https://stackoverflow.com/a/3374673/3514658
-$job = Start-Job -ScriptBlock {
-    $Assem = (
-        "System",
-        "System.Runtime.InteropServices")
-    $Source = @"
+
+if ($tapDriverWanted) {
+    # Install latest TAP which contains security fixes when possible, otherwise
+    # fall back to previously working installer when secure boot is enabled or
+    # when on Windows Server (which has stricter signing policies compared to
+    # standard Windows editions).
+    # In order to avoid infecting the default AppDomain with our class OS, we are
+    # creating a sub process
+    # src.: https://stackoverflow.com/a/3374673/3514658
+    $job = Start-Job -ScriptBlock {
+        $Assem = (
+            "System",
+            "System.Runtime.InteropServices")
+        $Source = @"
 using System;
 using System.Runtime.InteropServices;
 
@@ -142,60 +181,63 @@ public class OS {
     private static extern bool IsOS(int os);
 }
 "@
-    Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp
-    [OS]::IsWindowsServer()
-}
-Wait-Job $job | Out-Null
-$isWindowsServer = Receive-Job $job
-
-$isSecureBootEnabled = $false
-try {
-    $secureBoot = Get-ItemProperty -Path  'HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\State\' -Name UEFISecureBootEnabled -ErrorAction SilentlyContinue
-    if ($secureBoot.UEFISecureBootEnabled) {
-        $isSecureBootEnabled = $true
+        Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp
+        [OS]::IsWindowsServer()
     }
-} catch {
+    Wait-Job $job | Out-Null
+    $isWindowsServer = Receive-Job $job
+
+    $isSecureBootEnabled = $false
+    try {
+        $secureBoot = Get-ItemProperty -Path  'HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\State\' -Name UEFISecureBootEnabled -ErrorAction SilentlyContinue
+        if ($secureBoot.UEFISecureBootEnabled) {
+            $isSecureBootEnabled = $true
+        }
+    } catch {
+    }
+
+    # Needed to fix the aforementioned installer bug.
+    Write-Host "Adding OpenVPN to the Trusted Publishers (needed to have a silent install of the TAP driver)..."
+    if ($isWindowsServer -or $isSecureBootEnabled) {
+        Write-Host "You are running Windows Server or have Secure Boot enabled. Installing previous TAP driver instead..."
+        AddTrustedPublisherCertificate -file "$trustedPublisherCertificateOld"
+        Install-ChocolateyInstallPackage `
+            -PackageName "OpenVPN TAP driver" `
+            -FileType $fileType `
+            -SilentArgs $tapDriverInstallerSilentArgs `
+            -File $tapDriverInstallerOld `
+            -ValidExitCodes $validExitCodes
+    } else {
+        AddTrustedPublisherCertificate -file "$trustedPublisherCertificateNew"
+        Install-ChocolateyInstallPackage `
+            -PackageName "OpenVPN TAP driver" `
+            -FileType $fileType `
+            -SilentArgs $tapDriverInstallerSilentArgs `
+            -File $tapDriverInstallerNew `
+            -ValidExitCodes $validExitCodes
+    }
 }
 
-# Needed to fix the aforementioned installer bug.
-Write-Host "Adding OpenVPN to the Trusted Publishers (needed to have a silent install of the TAP driver)..."
-if ($isWindowsServer -or $isSecureBootEnabled) {
-    Write-Host "You are running Windows Server or have Secure Boot enabled. Installing previous TAP driver instead..."
-    AddTrustedPublisherCertificate -file "$trustedPublisherCertificateOld"
-    Install-ChocolateyInstallPackage `
-        -PackageName "OpenVPN TAP driver" `
-        -FileType $fileType `
-        -SilentArgs $tapDriverInstallerSilentArgs `
-        -File $tapDriverInstallerOld `
-        -ValidExitCodes $validExitCodes
-} else {
-    AddTrustedPublisherCertificate -file "$trustedPublisherCertificateNew"
-    Install-ChocolateyInstallPackage `
-        -PackageName "OpenVPN TAP driver" `
-        -FileType $fileType `
-        -SilentArgs $tapDriverInstallerSilentArgs `
-        -File $tapDriverInstallerNew `
-        -ValidExitCodes $validExitCodes
-}
+if ($serviceWanted) {
+    if ($previousInteractiveService) {
+        Write-Host "Resetting previous OpenVPN interactive service to " `
+            "'$($previousInteractiveService.status)' and " `
+            "'$($previousInteractiveService.startupType)'..."
+        SetServiceProperties `
+            -name "OpenVPNServiceInteractive" `
+            -status "$($previousInteractiveService.status)" `
+            -startupType "$($previousInteractiveService.startupType)"
+    }
 
-if ($previousInteractiveService) {
-    Write-Host "Resetting previous OpenVPN interactive service to " `
-        "'$($previousInteractiveService.status)' and " `
-        "'$($previousInteractiveService.startupType)'..."
-    SetServiceProperties `
-        -name "OpenVPNServiceInteractive" `
-        -status "$($previousInteractiveService.status)" `
-        -startupType "$($previousInteractiveService.startupType)"
-}
-
-if ($previousService) {
-    Write-Host "Resetting previous OpenVPN service to " `
-        "'$($previousService.status)' and "  `
-        "'$($previousService.startupType)'..."
-    SetServiceProperties `
-        -name "OpenVPNService" `
-        -status "$($previousService.status)" `
-        -startupType "$($previousService.startupType)"
+    if ($previousService) {
+        Write-Host "Resetting previous OpenVPN service to " `
+            "'$($previousService.status)' and "  `
+            "'$($previousService.startupType)'..."
+        SetServiceProperties `
+            -name "OpenVPNService" `
+            -status "$($previousService.status)" `
+            -startupType "$($previousService.startupType)"
+    }
 }
 
 Write-Host "Removing OpenVPN from the Trusted Publishers..."
