@@ -8,7 +8,7 @@
         <title>OpenVPN</title>
         <version>2.4.5</version>
         <authors>OpenVPN Technologies, Inc</authors>
-        <owners>wget, Okhoshi, mattock</owners>
+        <owners>wget, Okhoshi</owners>
         <summary>OpenVPN is a multiplatform and open source VPN server and client solution</summary>
         <description><![CDATA[
 This repository contains the sources of the [package OpenVPN](https://chocolatey.org/packages/openvpn/) for [Chocolatey, the package manager for Windows](https://chocolatey.org/).
@@ -25,7 +25,7 @@ This repository contains the sources of the [package OpenVPN](https://chocolatey
              the icon. -->
         <iconUrl>https://cdn.rawgit.com/wget/chocolatey-package-openvpn/master/icon.png</iconUrl>
         <dependencies>
-            <!-- The id is the lowest version required tomake the package work.
+            <!-- The id is the lowest version required to make the package work.
                  If we do not specify one, the chocolatey web validator will
                  report a warning to be fixed in order to respect guidelines. -->
             <dependency id="chocolatey" version="0.10.8" />
