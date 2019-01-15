@@ -3,6 +3,48 @@
 $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileType = 'exe'
 
+# We previously infected the global AppDomain namespace in a previous Chocolatey
+# package version. Try to warn the user about this.
+# We cannot call choco list -lo openvpn and parse the output to know the
+# previous Chocolatey package version, because when the script reach this
+# point, this is already the new Chocolatey package version that is
+# being referenced.
+$job = Start-Job -ScriptBlock {
+    function IsNamespaceInfected() {
+        foreach ($assembly in [System.AppDomain]::CurrentDomain.GetAssemblies()) {
+            foreach ($type in $assembly.GetTypes()) {
+                if ($type.Name -eq "OS") {
+                    foreach ($member in $type | Get-Member -Static) {
+                        if ($member.Name -eq "IsWindowsServer") {
+                        return $true
+                        }
+                    }
+                }
+            }
+        }
+        return $false
+    }
+    IsNamespaceInfected
+}
+Wait-Job $job | Out-Null
+$isNameSpaceInfected = Receive-Job $job
+if ($isNameSpaceInfected) {
+    Write-Warning "A bug has been introduced in the previous version of the Chocolatey OpenVPN"
+    Write-Warning "package (version 2.4.6.20180710)."
+    Write-Warning ""
+    Write-Warning "In order to detect whether the computer was running Windows Server, we loaded"
+    Write-Warning "C#/.NET assemblies."
+    Write-Warning ""
+    Write-Warning "The problem is that these assemblies were loaded in the default PowerShell"
+    Write-Warning "(AppDomain) namespace and they cannot be unloaded any more."
+    Write-Warning "That default PowerShell namespace is thus condamned to have the class ""OS"" loaded"
+    Write-Warning "forever which could lead to clashes with other system features or lead to hard"
+    Write-Warning "to debug issues."
+    Write-Warning ""
+    Write-Warning "Rebooting your machine (if possible) is thus recommended in order to get rid of this"
+    Write-Warning "namespace pollution."
+}
+
 # For a list of all silent arguments used
 # https://github.com/OpenVPN/openvpn-build/blob/c92af79befec86f21b257b5defba0becb3d7641f/windows-nsis/openvpn.nsi#L551
 # For their description
