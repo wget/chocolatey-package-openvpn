@@ -40,6 +40,8 @@ OpenVPN provides flexible VPN solutions to secure your data communications, whet
   choco install openvpn --params "'/SELECT_SHORTCUTS=0 /SELECT_ASSOCIATIONS=0'"
   ```
 
+* Due to deployment issues with Microsoft Intune, an additional Chocolatey package argument (`/USING_INTUNE=1`) has been provided to remove tests performed by this package, tests potentially failing with the Intune environment.
+
 
 This repository contains the sources of the [package OpenVPN](https://chocolatey.org/packages/openvpn/) for [Chocolatey, the package manager for Windows](https://chocolatey.org/).
 

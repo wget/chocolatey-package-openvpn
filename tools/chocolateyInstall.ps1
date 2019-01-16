@@ -79,9 +79,22 @@ if (!$packageParams['SELECT_LAUNCH']) { $packageParams['SELECT_LAUNCH'] = '1' }
 if (!$packageParams['SELECT_OPENSSLDLLS']) { $packageParams['SELECT_OPENSSLDLLS'] = '1' }
 if (!$packageParams['SELECT_LZODLLS']) { $packageParams['SELECT_LZODLLS'] = '1' }
 if (!$packageParams['SELECT_PKCS11DLLS']) { $packageParams['SELECT_PKCS11DLLS'] = '1' }
+
+# Bypass tests requiring assemblies when using Microsoft Intune
+if ($packageParams['USING_INTUNE'] -eq '1') {
+    $usingIntune = $true
+} else {
+    $usingIntune = $false
+}
+
 $openvpnInstallerSilentArgs = '/S '
 # Entries will be added to the string in random order since this is a dictionary.
-foreach ($i in $packageParams.Keys) { $openvpnInstallerSilentArgs += "/$i=$($packageParams[$i]) " }
+foreach ($i in $packageParams.Keys) {
+    if ($i -eq "USING_INTUNE") {
+        continue
+    }
+    $openvpnInstallerSilentArgs += "/$i=$($packageParams[$i]) "
+}
 $tapDriverInstallerSilentArgs = "/S /SELECT_EASYRSA=$($packageParams['SELECT_EASYRSA'])"
 
 $validExitCodes = @(0)
@@ -197,14 +210,16 @@ Install-ChocolateyInstallPackage `
     -ValidExitCodes $validExitCodes
 
 if ($tapDriverWanted) {
-    # Install latest TAP which contains security fixes when possible, otherwise
-    # fall back to previously working installer when secure boot is enabled or
-    # when on Windows Server (which has stricter signing policies compared to
-    # standard Windows editions).
-    # In order to avoid infecting the default AppDomain with our class OS, we are
-    # creating a sub process
-    # src.: https://stackoverflow.com/a/3374673/3514658
-    $job = Start-Job -ScriptBlock {
+
+    if (!$usingIntune) {
+        # Install latest TAP which contains security fixes when possible, otherwise
+        # fall back to previously working installer when secure boot is enabled or
+        # when on Windows Server (which has stricter signing policies compared to
+        # standard Windows editions).
+        # In order to avoid infecting the default AppDomain with our class OS, we are
+        # creating a sub process
+        # src.: https://stackoverflow.com/a/3374673/3514658
+        $job = Start-Job -ScriptBlock {
         $Assem = (
             "System",
             "System.Runtime.InteropServices")
@@ -223,11 +238,16 @@ public class OS {
     private static extern bool IsOS(int os);
 }
 "@
-        Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp
-        [OS]::IsWindowsServer()
+            Add-Type -ReferencedAssemblies $Assem -TypeDefinition $Source -Language CSharp
+            [OS]::IsWindowsServer()
+        }
+        Wait-Job $job | Out-Null
+        $isWindowsServer = Receive-Job $job
+    } else {
+        Write-Warning "Tests to determine if Windows Server was running have been bypassed because the"
+        Write-Warning "user has specified Microsoft Intune was used for deployment purposes."
+        $isWindowsServer = $false
     }
-    Wait-Job $job | Out-Null
-    $isWindowsServer = Receive-Job $job
 
     $isSecureBootEnabled = $false
     try {
