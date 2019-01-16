@@ -30,7 +30,10 @@ build_script:
     cd openvpn
     Write-Host "Current working directory: $(Get-Location)"
     Write-Host "In the current working directory: $(Get-ChildItem)"
-    $AU_force=$true; Update-Package
+    # For some reason $au_NoCheckUrl = $au_Force = $true; Update-Package was
+    # not downloading the files but was just creating the nupkg file.
+    # Had to use the "update" alias instead to make it work.
+    $au_NoCheckUrl = $au_Force = $true; update
 test: off
 artifacts:
 - path: openvpn\*.nupkg
@@ -46,7 +49,8 @@ on_success:
 - ps: |
     Write-Host "Current working directory: $(Get-Location)"
     Write-Host "In the current working directory: $(Get-ChildItem)"
-    choco install openvpn -fdvy -source "'.;https://chocolatey.org/api/v2/'"
+    $xml = [xml](Get-Content .\openvpn.nuspec)
+    choco install openvpn -fdvy -source "'.;https://chocolatey.org/api/v2/'" --version $xml.package.metadata.version
     choco uninstall openvpn -dvy
 
 # Please uncomment to have a RDP session, particularly useful to debug
