@@ -42,7 +42,8 @@ OpenVPN provides flexible VPN solutions to secure your data communications, whet
 
 * Due to deployment issues with Microsoft Intune, an additional Chocolatey package argument (`/USING_INTUNE=1`) has been provided to remove tests performed by this package, tests potentially failing with the Intune environment.
 
+## Contributions
 
-This repository contains the sources of the [package OpenVPN](https://chocolatey.org/packages/openvpn/) for [Chocolatey, the package manager for Windows](https://chocolatey.org/).
+* This repository contains the sources of the [package OpenVPN](https://chocolatey.org/packages/openvpn/) for [Chocolatey, the package manager for Windows](https://chocolatey.org/). Please report any issue you may encounter with this Chocolatey package [on the Github repository](https://github.com/wget/chocolatey-package-openvpn/).
 
-[For more information, please refer to the instructions available in the parent repository](https://github.com/wget/chocolatey-packages).
+* [For more information, please refer to the additional instructions available in the parent repository](https://github.com/wget/chocolatey-packages).
