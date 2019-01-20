@@ -40,5 +40,6 @@ This repository contains the sources of the [package OpenVPN](https://chocolatey
     </metadata>
     <files>
         <file src="tools\**" target="tools" exclude="**\utils\.git;**\utils\README.*" />
+        <file src="legal\**" target="legal" />
     </files>
 </package>
