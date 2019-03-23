@@ -3,20 +3,12 @@
 $releases = "https://build.openvpn.net/downloads/releases/"
 $openvpnInstallerUrl = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe'
 $openvpnInstallerPgpSignatureUrl = 'https://build.openvpn.net/downloads/releases/latest/openvpn-install-latest-stable.exe.asc'
-$tapDriverInstallerOldUrl = 'http://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe'
-$tapDriverInstallerOldPgpSignatureUrl = 'http://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe.asc'
-$tapDriverInstallerNewUrl = 'http://build.openvpn.net/downloads/releases/tap-windows-9.22.1-I601.exe'
-$tapDriverInstallerNewPgpSignatureUrl = 'http://build.openvpn.net/downloads/releases/tap-windows-9.22.1-I601.exe.asc'
 
 function global:au_SearchReplace {
    @{
         ".\tools\chocolateyInstall.ps1" = @{
             "(^[$]openvpnInstallerHash\s*=\s*)('.*')"    = "`$1'$($Latest.openvpnInstallerHash)'"
             "(^[$]openvpnInstallerPgpSignatureHash\s*=\s*)('.*')" = "`$1'$($Latest.openvpnInstallerPgpSignatureHash)'"
-            "(^[$]tapDriverInstallerOldHash\s*=\s*)('.*')" = "`$1'$($Latest.tapDriverInstallerOldHash)'"
-            "(^[$]tapDriverInstallerOldPgpSignatureHash\s*=\s*)('.*')" = "`$1'$($Latest.tapDriverInstallerOldPgpSignatureHash)'"
-            "(^[$]tapDriverInstallerNewHash\s*=\s*)('.*')" = "`$1'$($Latest.tapDriverInstallerNewHash)'"
-            "(^[$]tapDriverInstallerNewPgpSignatureHash\s*=\s*)('.*')" = "`$1'$($Latest.tapDriverInstallerNewPgpSignatureHash)'"
         }
     }
 }
@@ -40,26 +32,6 @@ function au_BeforeUpdate {
     Write-Host "Downloading installer signature to '$filePath'..."
     $client.DownloadFile($openvpnInstallerPgpSignatureUrl, $filePath)
     $Latest.openvpnInstallerPgpSignatureHash = Get-FileHash $filePath -Algorithm sha512 | % Hash
-
-    $filePath = "$toolsPath/tap_driver_installer_old.exe"
-    Write-Host "Downloading old TAP installer to '$filePath'..."
-    $client.DownloadFile($tapDriverInstallerOldUrl, $filePath)
-    $Latest.tapDriverInstallerOldHash = Get-FileHash $filePath -Algorithm sha512 | % Hash
-
-    $filePath = "$toolsPath/tap_driver_installer_old.exe.asc"
-    Write-Host "Downloading old TAP installer signature to '$filePath'..."
-    $client.DownloadFile($tapDriverInstallerOldPgpSignatureUrl, $filePath)
-    $Latest.tapDriverInstallerOldPgpSignatureHash = Get-FileHash $filePath -Algorithm sha512 | % Hash
-
-    $filePath = "$toolsPath/tap_driver_installer_new.exe"
-    Write-Host "Downloading new TAP installer to '$filePath'..."
-    $client.DownloadFile($tapDriverInstallerNewUrl, $filePath)
-    $Latest.tapDriverInstallerNewHash = Get-FileHash $filePath -Algorithm sha512 | % Hash
-
-    $filePath = "$toolsPath/tap_driver_installer_new.exe.asc"
-    Write-Host "Downloading new TAP installer signature to '$filePath'..."
-    $client.DownloadFile($tapDriverInstallerNewPgpSignatureUrl, $filePath)
-    $Latest.tapDriverInstallerNewPgpSignatureHash = Get-FileHash $filePath -Algorithm sha512 | % Hash
 }
 
 function global:au_GetLatest {
