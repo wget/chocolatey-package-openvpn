@@ -19,11 +19,6 @@ if ($packageParams['SELECT_SERVICE'] -eq '1') {
 if (!$packageParams['SELECT_TAP']) { $packageParams['SELECT_TAP'] = '1' }
 if ($packageParams['SELECT_TAP'] -eq '1') {
     $tapDriverWanted = $true
-    # We don't want the installer to install the tap driver for us. We want to
-    # do it by ourselves. The tap driver coming with the installer is buggy.
-    # We need a specific version of that TAP driver depending on the Windows
-    # version.
-    $packageParams['SELECT_TAP'] = '0'
 } else {
     $tapDriverWanted = $false
 }
